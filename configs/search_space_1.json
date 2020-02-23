@@ -1,0 +1,3 @@
+{ "epochs": {"_type":"choice", "_value":[5, 10, 15]},
+  "train_policy": {"_type":"choice", "_value":[1, 2]}
+}
