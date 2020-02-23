@@ -1,0 +1,21 @@
+authorName: Iman Mirzadeh
+experimentName: NN-Forget-GPU
+trialConcurrency: 4
+maxExecDuration: 24h
+maxTrialNum: 100
+
+#choice: local, remote, pai
+trainingServicePlatform: local
+searchSpacePath: search_space_1.json
+#choice: true, false
+useAnnotation: false
+tuner:
+  #choice: TPE, Random, Anneal, Evolution, BatchTuner
+  #SMAC (SMAC should be installed through nnictl)
+  builtinTunerName: TPE
+  classArgs:
+    optimize_mode: maximize
+trial:
+  command: python train.py --hidden_size 100
+  codeDir: ..
+  gpuNum: 1
