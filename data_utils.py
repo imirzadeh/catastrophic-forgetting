@@ -10,7 +10,7 @@ task_4_perm = np.random.RandomState(4444)
 task_5_perm = np.random.RandomState(5555)
 task_states = {2: task_2_perm, 3: task_3_perm, 4: task_4_perm, 5: task_5_perm}
 
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 TOTAL_TASKS = 5
 
 def get_permuted_mnist(task_id):
