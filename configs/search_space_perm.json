@@ -1,0 +1,4 @@
+{ "epochs": {"_type":"choice", "_value":[5, 10, 15]},
+  "dropout_1": {"_type":"choice", "_value":[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75]},
+  "dropout_2": {"_type":"choice", "_value":[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75]}
+}
