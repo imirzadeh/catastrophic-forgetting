@@ -136,7 +136,7 @@ if __name__ == "__main__":
 	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "TRIAL_UNKNWON")
 	args = parse_arguments()
 	experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg", auto_param_logging=False, auto_metric_logging=False, 
-						project_name="permuted-dropout", workspace="nn-forget", disabled=False)
+						project_name="rotated-dropout", workspace="nn-forget", disabled=False)
 
 	# task = Task.init(project_name="Allegro-NN-Forget", task_name="nn-forget")
 	# logger = task.get_logger()
@@ -144,13 +144,13 @@ if __name__ == "__main__":
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	# config = {'epochs': 3, 'dropout_1': 0.4, 'dropout_2':0.4}
+	# config = {'epochs': 5, 'dropout_1': 0.3, 'dropout_2':0.3}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	
 
 	net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
-	tasks = get_permutaed_mnist_tasks(5)
+	tasks = get_rotated_mnist_tasks(5)
 
 	running_test_accs = {1: [], 2:[], 3:[], 4:[], 5:[]}
 	TASKS = 5

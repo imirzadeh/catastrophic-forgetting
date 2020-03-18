@@ -42,17 +42,18 @@ class RotationTransform:
 	def __init__(self, angle):
 		self.angle = angle
 
-	def __cal__(self, x):
-		return TorchVisionFunc.rotate(x, self.angle)
+	def __call__(self, x):
+		return TorchVisionFunc.rotate(x, self.angle, fill=(0,))
 
 
 def get_rotated_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
 	ROTATE_DEGREES_PER_TASK = 10
 	rotation_angle = (task_id-1)*ROTATE_DEGREES_PER_TASK
 
-	transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
-				RotationTransform(rotation_angle),
-				torchvision.transforms.Normalize((0.1307,), (0.3081,)) ])
+	transforms = torchvision.transforms.Compose([
+		RotationTransform(rotation_angle),
+		torchvision.transforms.ToTensor(),
+		])
 
 	train_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=True, download=True, transform=transforms), batch_size=batch_size, shuffle=shuffle)
 	test_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=False, download=True, transform=transforms),  batch_size=batch_size, shuffle=shuffle)
