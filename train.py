@@ -17,7 +17,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 matplotlib.style.use('ggplot')
 
-DEVICE = 'cuda'
+DEVICE = 'cpu'
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description='Arg parser')
@@ -133,10 +133,10 @@ def save_firing_patterns(patterns, filename):
 	df.to_csv(filename)
 
 if __name__ == "__main__":
-	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "PERM_GPU_20")
+	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 	args = parse_arguments()
 	experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg", auto_param_logging=False, auto_metric_logging=False, 
-						project_name="explore", workspace="nn-forget", disabled=False)
+						project_name="permuted-long", workspace="nn-forget", disabled=False)
 
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
@@ -188,7 +188,8 @@ if __name__ == "__main__":
 	save_firing_patterns(firing_patterns_l1, './stash/id={}-firing-history-l1.csv'.format(trial_id))
 	save_firing_patterns(firing_patterns_l2, './stash/id={}-firing-history-l2.csv'.format(trial_id))
 
-	score = (running_test_accs[1][-1] + running_test_accs[1][-2] + running_test_accs[1][-3])/3.0
+	score = np.mean([running_test_accs[i][-1] for i in running_test_accs.keys()])
+	# score = (running_test_accs[1][-1] + running_test_accs[1][-2] + running_test_accs[1][-3])/3.0
 	
 	experiment.log_metric(name='score', value=score)
 

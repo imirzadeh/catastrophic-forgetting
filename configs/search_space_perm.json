@@ -1,4 +1,7 @@
-{ "epochs": {"_type":"choice", "_value":[5, 10, 15]},
-  "dropout_1": {"_type":"choice", "_value":[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75]},
-  "dropout_2": {"_type":"choice", "_value":[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75]}
+{ "epochs": {"_type":"choice", "_value":[5]},
+  "dropout_1": {"_type":"choice", "_value":[0.25, 0.5, 0.65]},
+  "dropout_2": {"_type":"choice", "_value":[0.25, 0.5, 0.65]},
+  "lr": {"_type": "choice", "_value": [0.01, 0.008, 0.005]},
+  "gamma": {"_type": "choice", "_value": [1.0, 0.9, 0.7]},
+  "lr_lb": {"_type": "choice", "_value": [0.001, 0.002, 0.005]}
 }
