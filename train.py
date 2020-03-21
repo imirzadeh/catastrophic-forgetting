@@ -141,7 +141,7 @@ if __name__ == "__main__":
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	config = {'epochs': 5, 'dropout_1': 0.5, 'dropout_2':0.5, 'lr': 0.01, 'gamma': 0.6, 'lr_lb': 0.001}
+	# config = {'epochs': 5, 'dropout_1': 0.5, 'dropout_2':0.5, 'lr': 0.01, 'gamma': 0.6, 'lr_lb': 0.001}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	
