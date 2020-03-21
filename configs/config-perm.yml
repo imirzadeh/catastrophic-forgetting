@@ -1,6 +1,6 @@
 authorName: Iman Mirzadeh
 experimentName: NN-Forget-Perm-Dropout-Scaled
-trialConcurrency: 2
+trialConcurrency: 1
 maxExecDuration: 24h
 maxTrialNum: 1500
 
@@ -12,9 +12,7 @@ useAnnotation: false
 tuner:
   #choice: TPE, Random, Anneal, Evolution, BatchTuner
   #SMAC (SMAC should be installed through nnictl)
-  builtinTunerName: TPE
-  classArgs:
-    optimize_mode: maximize
+  builtinTunerName: Random
 trial:
   command: python train.py --hidden_size 256
   codeDir: ..

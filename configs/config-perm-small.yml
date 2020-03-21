@@ -1,12 +1,12 @@
 authorName: Iman Mirzadeh
 experimentName: NN-Forget-Perm-Dropout-Scaled
-trialConcurrency: 2
+trialConcurrency: 1
 maxExecDuration: 24h
 maxTrialNum: 1500
 
 #choice: local, remote, pai
 trainingServicePlatform: local
-searchSpacePath: search_space_perm.json
+searchSpacePath: search_space_perm_small.json
 #choice: true, false
 useAnnotation: false
 tuner:
