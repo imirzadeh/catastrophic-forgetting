@@ -14,7 +14,7 @@ task_5_perm = np.random.RandomState()
 
 task_states = {i: np.random.RandomState() for i in range(2, 10)}
 BATCH_SIZE = 64
-TOTAL_TASKS = 5
+TOTAL_TASKS = 10
 
 def get_permuted_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
 	# permutation
@@ -26,8 +26,8 @@ def get_permuted_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
 				torchvision.transforms.Lambda(lambda x: x.view(-1)[idx_permute].view(1, 28, 28) ),
 				])
 	# torchvision.transforms.Normalize((0.1307,), (0.3081,)) 
-	train_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=True, download=True, transform=transforms), batch_size=batch_size, shuffle=shuffle)
-	test_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=False, download=True, transform=transforms),  batch_size=batch_size, shuffle=shuffle)
+	train_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=True, download=True, transform=transforms), batch_size=batch_size, shuffle=shuffle, num_workers=4, pin_memory=True)
+	test_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=False, download=True, transform=transforms),  batch_size=batch_size, shuffle=shuffle, pin_memory=True, num_workers=4)
 
 	return train_loader, test_loader
 

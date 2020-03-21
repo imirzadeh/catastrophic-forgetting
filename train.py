@@ -17,7 +17,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 matplotlib.style.use('ggplot')
 
-DEVICE = 'cpu'
+DEVICE = 'cuda'
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description='Arg parser')
@@ -47,7 +47,7 @@ class MLP(nn.Module):
 		out = self.W2(out)
 		out = self.relu(out)
 		l2 = torch.sum((out > 0.0).float(), dim=0)
-		return l1, l2
+		return l1.cpu(), l2.cpu()
 
 	def forward(self, x, task_id):
 		# ratio = 0.05
@@ -64,10 +64,10 @@ class MLP(nn.Module):
 		return out
 
 
-def train_single_epoch(net, loader, task_id):
+def train_single_epoch(net, loader, task_id, config):
 	net = net.to(DEVICE)
 	net.train()
-	lr = max(0.01*(0.6**task_id), 0.002)#0.015* 0.6**(task_id)
+	lr = max(config['lr']*(config['gamma']**task_id), config['lr_lb'])#0.015* 0.6**(task_id)
 	optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.8)
 	criterion = nn.CrossEntropyLoss()
 	for batch_idx, (data, target) in enumerate(loader):
@@ -110,6 +110,7 @@ def record_firing_rate(net, loader):
 	fires_l1, fires_l2 = None, None
 	with torch.no_grad():
 		for data, target in loader:
+			data = data.to(DEVICE)
 			if fires_l1 is None:
 				fires_l1, fires_l2 = net.get_firing_acts(data)
 			else:
@@ -132,19 +133,19 @@ def save_firing_patterns(patterns, filename):
 	df.to_csv(filename)
 
 if __name__ == "__main__":
-	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "PERM_NO_DROPOUT")
+	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "PERM_GPU_20")
 	args = parse_arguments()
 	experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg", auto_param_logging=False, auto_metric_logging=False, 
-						project_name="explore", workspace="nn-forget", disabled=True)
+						project_name="explore", workspace="nn-forget", disabled=False)
 
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	config = {'epochs': 1, 'dropout_1': 0.4, 'dropout_2':0.4}
+	config = {'epochs': 5, 'dropout_1': 0.5, 'dropout_2':0.5, 'lr': 0.01, 'gamma': 0.6, 'lr_lb': 0.001}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	
-	TASKS = 17
+	TASKS = 20
 
 	net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
 	tasks = get_permuted_mnist_tasks(TASKS)
@@ -171,9 +172,9 @@ if __name__ == "__main__":
 		for epoch in range(1, config['epochs']+1):
 			print(">>> epoch {}".format(epoch))
 			# train
-			net = train_single_epoch(net, train_loader, task_id)
+			net = train_single_epoch(net, train_loader, task_id, config)
 			# eval
-			for test_task_id in range(1, TASKS+1):
+			for test_task_id in range(1, TASKS+1):#[1, 2, 3]:#range(1, TASKS+1):
 				if test_task_id > task_id:
 					test_acc = 0 # left-padding with zero
 				else:
