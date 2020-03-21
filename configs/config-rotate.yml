@@ -2,7 +2,7 @@ authorName: Iman Mirzadeh
 experimentName: NN-Forget-Rotate-Dropout
 trialConcurrency: 1
 maxExecDuration: 24h
-maxTrialNum: 1500
+maxTrialNum: 10
 
 #choice: local, remote, pai
 trainingServicePlatform: local
