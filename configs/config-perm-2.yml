@@ -13,8 +13,6 @@ tuner:
   #choice: TPE, Random, Anneal, Evolution, BatchTuner
   #SMAC (SMAC should be installed through nnictl)
   builtinTunerName: Random
-  classArgs:
-    optimize_mode: maximize
 trial:
   command: python train.py --hidden_size 256
   codeDir: ..
