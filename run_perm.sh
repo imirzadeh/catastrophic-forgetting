@@ -1,0 +1,1 @@
+nnictl create --config configs/config-perm.yml --port 8889
