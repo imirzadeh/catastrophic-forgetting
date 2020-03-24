@@ -55,11 +55,11 @@ class MLP(nn.Module):
 		# x = torch.cat((ratio*task_id*torch.ones((x.shape[0], self.num_time_tensors)), x), dim=1)
 		out = self.W1(x)
 		out = self.relu(out)
-		out = self.dropout_1(out)
+		# out = self.dropout_1(out)
 		# out = torch.cat((ratio*task_id*torch.ones((out.shape[0], self.num_time_tensors)), out), dim=1)
 		out = self.W2(out)
 		out = self.relu(out)
-		out = self.dropout_2(out)
+		# out = self.dropout_2(out)
 		out = self.W3(out)
 		return out
 
