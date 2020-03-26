@@ -190,8 +190,9 @@ if __name__ == "__main__":
 
 	score = np.mean([running_test_accs[i][-1] for i in running_test_accs.keys()])
 	# score = (running_test_accs[1][-1] + running_test_accs[1][-2] + running_test_accs[1][-3])/3.0
-	
+	forget = np.mean([max(running_test_accs[i])-running_test_accs[i][-1] for i in range(1, TASKS)])/100.0
 	experiment.log_metric(name='score', value=score)
+	experiment.log_metric(name='forget', value=forget)
 
 	clone = []
 	for k in running_test_accs.keys():
