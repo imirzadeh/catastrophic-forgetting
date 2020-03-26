@@ -17,11 +17,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 matplotlib.style.use('ggplot')
 
-DEVICE = 'cpu'
+DEVICE = 'cuda'
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description='Arg parser')
-	parser.add_argument('--hidden_size', default=256, type=int, help='num hiddens')
+	parser.add_argument('--hidden_size', default=100, type=int, help='num hiddens')
 	args = parser.parse_args()
 	return args
 
@@ -55,11 +55,11 @@ class MLP(nn.Module):
 		# x = torch.cat((ratio*task_id*torch.ones((x.shape[0], self.num_time_tensors)), x), dim=1)
 		out = self.W1(x)
 		out = self.relu(out)
-		# out = self.dropout_1(out)
+		out = self.dropout_1(out)
 		# out = torch.cat((ratio*task_id*torch.ones((out.shape[0], self.num_time_tensors)), out), dim=1)
 		out = self.W2(out)
 		out = self.relu(out)
-		# out = self.dropout_2(out)
+		out = self.dropout_2(out)
 		out = self.W3(out)
 		return out
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	# config = {'epochs': 5, 'dropout_1': 0.5, 'dropout_2':0.5, 'lr': 0.01, 'gamma': 0.6, 'lr_lb': 0.001}
+	# config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.002, 'gamma': 0.9, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	

@@ -6,7 +6,7 @@ maxTrialNum: 1500
 
 #choice: local, remote, pai
 trainingServicePlatform: local
-searchSpacePath: search_space_perm.json
+searchSpacePath: search_space_perm_small.json
 #choice: true, false
 useAnnotation: false
 tuner:
@@ -16,4 +16,4 @@ tuner:
 trial:
   command: python train.py --hidden_size 256
   codeDir: ..
-  gpuNum: 0
+  gpuNum: 1
