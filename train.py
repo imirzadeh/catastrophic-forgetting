@@ -21,7 +21,7 @@ DEVICE = 'cuda'
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description='Arg parser')
-	parser.add_argument('--hidden_size', default=100, type=int, help='num hiddens')
+	parser.add_argument('--hidden_size', default=256, type=int, help='num hiddens')
 	args = parser.parse_args()
 	return args
 
@@ -136,7 +136,7 @@ if __name__ == "__main__":
 	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 	args = parse_arguments()
 	experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg", auto_param_logging=False, auto_metric_logging=False, 
-						project_name="permuted-long", workspace="nn-forget", disabled=False)
+						project_name="rotated-long", workspace="nn-forget", disabled=False)
 
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 	TASKS = 20
 
 	net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
-	tasks = get_permuted_mnist_tasks(TASKS)
+	tasks = get_rotated_mnist_tasks(TASKS)
 
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
