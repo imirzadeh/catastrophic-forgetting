@@ -11,6 +11,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import pandas as pd
 import matplotlib
+from torch.optim.lr_scheduler import MultiStepLR, StepLR, ExponentialLR
 matplotlib.use('Agg')
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -110,7 +111,7 @@ if __name__ == "__main__":
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	config = {'epochs': 3, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.01, 'gamma': 0.1, 'lr_lb': 0.005}
+	config = {'epochs': 3, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.1, 'gamma': 0.1, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	# lr = max(config['lr']*(config['gamma']**task_id), config['lr_lb'])#0.015* 0.6**(task_id)
@@ -121,7 +122,7 @@ if __name__ == "__main__":
 	net = ResNet18().to(DEVICE)
 	tasks = get_split_cifar100_tasks_2(TASKS)
 	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.8)
-
+	scheduler = MultiStepLR(optimizer, milestones=[1, 2], gamma=0.1)
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
 	
@@ -151,7 +152,8 @@ if __name__ == "__main__":
 					test_acc = 0 # left-padding with zero
 				else:
 					test_acc = eval_single_epoch(net, tasks[test_task_id]['test'], test_task_id)
-				running_test_accs[test_task_id].append(test_acc)	
+				running_test_accs[test_task_id].append(test_acc)
+		scheduler.step(task_id)
 
 	score = np.mean([running_test_accs[i][-1] for i in running_test_accs.keys()])
 	# score = (running_test_accs[1][-1] + running_test_accs[1][-2] + running_test_accs[1][-3])/3.0
