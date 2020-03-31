@@ -1,0 +1,19 @@
+authorName: Iman Mirzadeh
+experimentName: NN-Forget-CIFAR-EXP
+trialConcurrency: 1
+maxExecDuration: 24h
+maxTrialNum: 100
+
+#choice: local, remote, pai
+trainingServicePlatform: local
+searchSpacePath: search_space_cifar.json
+#choice: true, false
+useAnnotation: false
+tuner:
+  #choice: TPE, Random, Anneal, Evolution, BatchTuner
+  #SMAC (SMAC should be installed through nnictl)
+  builtinTunerName: Random
+trial:
+  command: python train.py
+  codeDir: ..
+  gpuNum: 1

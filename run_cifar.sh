@@ -1,0 +1,1 @@
+nnictl create --config configs/config-cifar.yml --port 8080

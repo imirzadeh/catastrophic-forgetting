@@ -1,0 +1,4 @@
+{ "epochs": {"_type":"choice", "_value":[1]},
+  "lr": {"_type": "choice", "_value": [0.001, 0.005, 0.01, 0.05]},
+  "gamma": {"_type": "choice", "_value": [0.99, 0.9, 0.8, 0.5, 0.3, 0.1]}
+}

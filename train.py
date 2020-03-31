@@ -111,7 +111,7 @@ if __name__ == "__main__":
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	config = {'epochs': 1, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.1, 'gamma': 0.1, 'lr_lb': 0.005}
+	# config = {'epochs': 1, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.1, 'gamma': 0.1, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	# lr = max(config['lr']*(config['gamma']**task_id), config['lr_lb'])#0.015* 0.6**(task_id)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
 	net = ResNet18().to(DEVICE)
 	tasks = get_split_cifar100_tasks_2(TASKS)
 	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.8)
-	scheduler = MultiStepLR(optimizer, milestones=[1, 2], gamma=0.1)
+	scheduler = MultiStepLR(optimizer, milestones=[1, 2, 3, 4], gamma=config['gamma'])
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
 	
