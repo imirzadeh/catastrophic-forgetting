@@ -100,7 +100,7 @@ if __name__ == "__main__":
 	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 	args = parse_arguments()
 	experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg", auto_param_logging=False, auto_metric_logging=False, 
-						project_name="rotated-long", workspace="nn-forget", disabled=True)
+						project_name="explore-cifar", workspace="nn-forget", disabled=False)
 
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	
-	TASKS = 3
+	TASKS = 5
 
 	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
 	net = ResNet18().to(DEVICE)

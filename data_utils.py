@@ -72,7 +72,7 @@ def get_rotated_mnist_tasks(num_tasks=5, shuffle=False, batch_size=BATCH_SIZE):
 
 
 
-def get_split_cifar100(task_id, batch_size=32, shuffle=False):
+def get_split_cifar100(task_id, batch_size=BATCH_SIZE, shuffle=False):
 	# convention: tasks starts from 1 not 0 !
 	# task_id = 1 (i.e., first task) => start_class = 0, end_class = 4
 	start_class = (task_id-1)*5
@@ -98,9 +98,9 @@ def get_split_cifar100(task_id, batch_size=32, shuffle=False):
 	return train_loader, test_loader
 
 
-def get_split_cifar100_tasks(num_tasks=20, shuffle=False, batch_size=BATCH_SIZE):
+def get_split_cifar100_tasks(num_tasks, shuffle=False, batch_size=BATCH_SIZE):
 	datasets = {}
-	for task_id in range(1, 4):
+	for task_id in range(1, num_tasks):
 		train_loader, test_loader = get_split_cifar100(task_id, batch_size, shuffle)
 		datasets[task_id] = {'train': train_loader, 'test': test_loader}
 	return datasets
