@@ -100,7 +100,7 @@ def get_split_cifar100(task_id, batch_size=BATCH_SIZE, shuffle=False):
 
 def get_split_cifar100_tasks_2(num_tasks, shuffle=False, batch_size=BATCH_SIZE):
 	datasets = {}
-	for task_id in range(1, num_tasks):
+	for task_id in range(1, num_tasks+1):
 		train_loader, test_loader = get_split_cifar100(task_id, batch_size, shuffle)
 		datasets[task_id] = {'train': train_loader, 'test': test_loader}
 	return datasets
