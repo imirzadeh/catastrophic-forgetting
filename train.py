@@ -35,8 +35,6 @@ def train_single_epoch(net, loader, task_id, config):
 	optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.8)
 	criterion = nn.CrossEntropyLoss()
 	for batch_idx, (data, target) in enumerate(loader):
-		if batch_idx % 10 == 0:
-			print(batch_idx)
 		data = data.to(DEVICE)
 		target = target.to(DEVICE)
 		optimizer.zero_grad()
