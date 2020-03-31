@@ -57,10 +57,11 @@ def eval_single_epoch(net, loader, task_id):
 
 			data = data.to(DEVICE)
 			target = target.to(DEVICE)
-			if cnt == 1:
-				print(data)
-				print(target)
+
 			output = net(data)#net(data, task_id)
+			if cnt == 1:
+				print(output.data.max(1, keepdim=True)[1])
+				print(target.data.max(1, keepdim=True)[1])
 			test_loss += crit(output, target).item()
 			pred = output.data.max(1, keepdim=True)[1]
 			correct += pred.eq(target.data.view_as(pred)).sum()
