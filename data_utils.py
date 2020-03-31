@@ -118,7 +118,7 @@ def get_split_cifar100_tasks(num_tasks, shuffle=False, batch_size=BATCH_SIZE):
 	test_loader = torch.utils.data.DataLoader(test, batch_size=batch_size, pin_memory=True, num_workers=4)
 
 	datasets = {}
-	for task_id in range(1, num_tasks):
+	for task_id in range(1, num_tasks+1):
 		datasets[task_id] = {'train': train_loader, 'test': test_loader}
 	return datasets
 

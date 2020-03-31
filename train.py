@@ -59,8 +59,8 @@ def eval_single_epoch(net, loader, task_id):
 			target = target.to(DEVICE)
 
 			output = net(data)#net(data, task_id)
-			if cnt == 1:
-				print(output.data.max(1, keepdim=True)[1][:20])
+			# if cnt == 1:
+			#	print(output.data.max(1, keepdim=True)[1][:20])
 			test_loss += crit(output, target).item()
 			pred = output.data.max(1, keepdim=True)[1]
 			correct += pred.eq(target.data.view_as(pred)).sum()
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.2, 'gamma': 0.1, 'lr_lb': 0.005}
+	config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.01, 'gamma': 0.1, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	# lr = max(config['lr']*(config['gamma']**task_id), config['lr_lb'])#0.015* 0.6**(task_id)
