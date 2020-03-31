@@ -10,13 +10,13 @@ import torch.nn as nn
 from torch.nn.functional import relu, avg_pool2d
 
 
-def Xavier(m):
-	if m.__class__.__name__ == 'Linear':
-		fan_in, fan_out = m.weight.data.size(1), m.weight.data.size(0)
-		std = 1.0 * math.sqrt(2.0 / (fan_in + fan_out))
-		a = math.sqrt(3.0) * std
-		m.weight.data.uniform_(-a, a)
-		m.bias.data.fill_(0.0)
+
+def init_weights(m):
+	# if type(m) == nn.Linear:
+	# 	torch.nn.init.xavier_uniform(m.weight)
+	# 	m.bias.data.fill_(0.01)
+	if type(m) == nn.Conv2d:
+		torch.nn.init.orthogonal_(m.weight)
 
 
 class MLP(nn.Module):
@@ -221,4 +221,6 @@ class ResNet(nn.Module):
 		return out
 
 def ResNet18(nclasses=100, nf=20):
-	return ResNet(BasicBlock, [2, 2, 2, 2], nclasses, nf)
+	net = ResNet(BasicBlock, [2, 2, 2, 2], nclasses, nf)
+	net.apply(init_weights)
+	return net
