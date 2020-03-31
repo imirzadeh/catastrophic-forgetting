@@ -1,4 +1,4 @@
 { "epochs": {"_type":"choice", "_value":[1]},
-  "lr": {"_type": "choice", "_value": [0.01, 0.05, 0.07, 0.08]},
-  "gamma": {"_type": "choice", "_value": [0.99, 0.9, 0.8, 0.5]}
+  "lr": {"_type": "choice", "_value": [0.005, 0.01, 0.05, 0.07, 0.08]},
+  "orthogonal-init": {"_type": "choice", "_value": [1, 0]}
 }

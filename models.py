@@ -220,7 +220,8 @@ class ResNet(nn.Module):
 			out[:, offset2:100].data.fill_(-10e10)
 		return out
 
-def ResNet18(nclasses=100, nf=20):
+def ResNet18(nclasses=100, nf=20, config={}):
 	net = ResNet(BasicBlock, [2, 2, 2, 2], nclasses, nf)
-	# net.apply(init_weights)
+	if config.get('orthogonal-init', False):
+		net.apply(init_weights)
 	return net

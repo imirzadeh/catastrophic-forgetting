@@ -16,10 +16,10 @@ matplotlib.use('Agg')
 import seaborn as sns
 import matplotlib.pyplot as plt
 from models import ResNet18
-from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks,get_split_cifar100_tasks_2
+from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks,get_split_cifar100_tasks
 matplotlib.style.use('ggplot')
 	
-DEVICE = 'cuda'
+DEVICE = 'cpu'
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description='Arg parser')
@@ -106,13 +106,13 @@ if __name__ == "__main__":
 	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 	args = parse_arguments()
 	experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg", auto_param_logging=False, auto_metric_logging=False, 
-						project_name="cifar20", workspace="nn-forget", disabled=False)
+						project_name="cifar20-episodic-mem", workspace="nn-forget", disabled=False)
 
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 	TASKS = 17
 
-	# config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.05, 'gamma': 0.99, 'lr_lb': 0.005}
+	config = {'epochs': 1, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.01, 'gamma': 0.99, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	config['tasks'] = TASKS
@@ -121,9 +121,9 @@ if __name__ == "__main__":
 
 	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
 	net = ResNet18().to(DEVICE)
-	tasks = get_split_cifar100_tasks_2(TASKS)
+	tasks = get_split_cifar100_tasks(TASKS)
 	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.8)
-	scheduler = MultiStepLR(optimizer, milestones=[1, 2, 3, 4], gamma=config['gamma'])
+	#scheduler = MultiStepLR(optimizer, milestones=[1, 2, 3, 4], gamma=config['gamma'])
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
 	
@@ -147,14 +147,20 @@ if __name__ == "__main__":
 			print(">>> epoch {}".format(epoch))
 			# train
 			net = train_single_epoch(net, optimizer, train_loader, task_id, config)
+
+			# rehearse
+			for replay_task_id in range(1, task_id+1):
+				episodic_memory_loader = tasks[replay_task_id]['episodic_memory']
+				train_single_epoch(net, optimizer, episodic_memory_loader, task_id, config)
+
 			# eval
 			for test_task_id in range(1, TASKS+1):#[1, 2, 3]:#range(1, TASKS+1):
 				if test_task_id > task_id:
-					test_acc = 0 # left-padding with zero
+					test_acc = 0 # left-padding with zero (to have square matrix)
 				else:
 					test_acc = eval_single_epoch(net, tasks[test_task_id]['test'], test_task_id)
 				running_test_accs[test_task_id].append(test_acc)
-		scheduler.step(task_id)
+		#scheduler.step(task_id)
 
 	score = np.mean([running_test_accs[i][-1] for i in running_test_accs.keys()])
 	# score = (running_test_accs[1][-1] + running_test_accs[1][-2] + running_test_accs[1][-3])/3.0
