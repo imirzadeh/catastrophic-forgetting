@@ -222,5 +222,5 @@ class ResNet(nn.Module):
 
 def ResNet18(nclasses=100, nf=20):
 	net = ResNet(BasicBlock, [2, 2, 2, 2], nclasses, nf)
-	net.apply(init_weights)
+	# net.apply(init_weights)
 	return net
