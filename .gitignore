@@ -279,6 +279,8 @@ models/
 .python-version
 ./.python-version
 
-
+./data/
+./tmp/
+./temp/
 # End of https://www.gitignore.io/api/vim,macos,python,sublimetext,pycharm+all
 
