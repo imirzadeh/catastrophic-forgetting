@@ -282,5 +282,8 @@ models/
 ./data/
 ./tmp/
 ./temp/
+data/
+tmp/
+temp/
 # End of https://www.gitignore.io/api/vim,macos,python,sublimetext,pycharm+all
 

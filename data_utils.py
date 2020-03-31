@@ -14,7 +14,7 @@ task_5_perm = np.random.RandomState()
 # 			 6: task_2_perm, 7: task_3_perm, 8: task_4_perm, 9: task_5_perm}
 
 task_states = {i: np.random.RandomState() for i in range(2, 10)}
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 
 def get_permuted_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
 	# permutation
@@ -114,8 +114,8 @@ def get_split_cifar100_tasks(num_tasks, shuffle=False, batch_size=BATCH_SIZE):
 
 	train = torchvision.datasets.CIFAR100('./data/', train=True, download=True, transform=transforms)
 	test = torchvision.datasets.CIFAR100('./data/', train=False, download=True, transform=transforms)
-	train_loader = torch.utils.data.DataLoader(train, pin_memory=True)
-	test_loader = torch.utils.data.DataLoader(test, pin_memory=True)
+	train_loader = torch.utils.data.DataLoader(train, pin_memory=True, num_workers=4)
+	test_loader = torch.utils.data.DataLoader(test, pin_memory=True, num_workers=4)
 
 	datasets = {}
 	for task_id in range(1, num_tasks):
