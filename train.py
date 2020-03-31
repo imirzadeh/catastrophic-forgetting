@@ -19,7 +19,7 @@ from models import ResNet18
 from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks,get_split_cifar100_tasks
 matplotlib.style.use('ggplot')
 	
-DEVICE = 'cpu'
+DEVICE = 'cuda'
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description='Arg parser')
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 	config = nni.get_next_parameter()
 	TASKS = 17
 
-	config = {'epochs': 1, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.01, 'gamma': 0.99, 'lr_lb': 0.005}
+	# config = {'epochs': 1, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.01, 'gamma': 0.99, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	config['tasks'] = TASKS
