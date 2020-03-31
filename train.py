@@ -9,12 +9,13 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import seaborn as sns
 import matplotlib.pyplot as plt
+from models import ResNet18
+from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks,get_split_cifar100_tasks
 matplotlib.style.use('ggplot')
 
 DEVICE = 'cuda'
@@ -25,43 +26,6 @@ def parse_arguments():
 	args = parser.parse_args()
 	return args
 
-class MLP(nn.Module):
-	def __init__(self, hidden_layers, config):
-		super(MLP, self).__init__()
-		self.num_time_tensors = 50
-		# self.W1 = nn.Linear(784+self.num_time_tensors, hidden_layers[0])
-		self.W1 = nn.Linear(784, hidden_layers[0])
-		# self.relu = nn.LeakyReLU(0.01)	
-		self.relu = nn.ReLU()
-		self.W2 = nn.Linear(hidden_layers[0], hidden_layers[1])
-		self.W3 = nn.Linear(hidden_layers[1], hidden_layers[2])
-		self.dropout_1 = nn.Dropout(p=config['dropout_1'])
-		self.dropout_2 = nn.Dropout(p=config['dropout_2'])
-		self.batchnorm = nn.BatchNorm1d(hidden_layers[0])
-	
-	def get_firing_acts(self, x):
-		x = x.view(-1, 784)
-		out = self.W1(x)
-		out = self.relu(out)
-		l1 = torch.sum((out > 0.0).float(), dim=0)
-		out = self.W2(out)
-		out = self.relu(out)
-		l2 = torch.sum((out > 0.0).float(), dim=0)
-		return l1.cpu(), l2.cpu()
-
-	def forward(self, x, task_id):
-		# ratio = 0.05
-		x = x.view(-1, 784)
-		# x = torch.cat((ratio*task_id*torch.ones((x.shape[0], self.num_time_tensors)), x), dim=1)
-		out = self.W1(x)
-		out = self.relu(out)
-		out = self.dropout_1(out)
-		# out = torch.cat((ratio*task_id*torch.ones((out.shape[0], self.num_time_tensors)), out), dim=1)
-		out = self.W2(out)
-		out = self.relu(out)
-		out = self.dropout_2(out)
-		out = self.W3(out)
-		return out
 
 
 def train_single_epoch(net, loader, task_id, config):
@@ -74,7 +38,7 @@ def train_single_epoch(net, loader, task_id, config):
 		data = data.to(DEVICE)
 		target = target.to(DEVICE)
 		optimizer.zero_grad()
-		pred = net(data, task_id)
+		pred = net(data)#net(data, task_id)
 		loss = criterion(pred, target)
 		loss.backward()
 		optimizer.step()
@@ -91,7 +55,7 @@ def eval_single_epoch(net, loader, task_id):
 		for data, target in loader:
 			data = data.to(DEVICE)
 			target = target.to(DEVICE)
-			output = net(data, task_id)
+			output = net(data)#net(data, task_id)
 			test_loss += crit(output, target).item()
 			pred = output.data.max(1, keepdim=True)[1]
 			correct += pred.eq(target.data.view_as(pred)).sum()
@@ -136,19 +100,20 @@ if __name__ == "__main__":
 	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 	args = parse_arguments()
 	experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg", auto_param_logging=False, auto_metric_logging=False, 
-						project_name="rotated-long", workspace="nn-forget", disabled=False)
+						project_name="rotated-long", workspace="nn-forget", disabled=True)
 
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	# config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.002, 'gamma': 0.9, 'lr_lb': 0.005}
+	config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.002, 'gamma': 0.9, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
 	
-	TASKS = 20
+	TASKS = 3
 
-	net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
-	tasks = get_rotated_mnist_tasks(TASKS)
+	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
+	net = ResNet18().to(DEVICE)
+	tasks = get_split_cifar100_tasks(TASKS)
 
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
@@ -179,14 +144,7 @@ if __name__ == "__main__":
 					test_acc = 0 # left-padding with zero
 				else:
 					test_acc = eval_single_epoch(net, tasks[test_task_id]['test'], test_task_id)
-				running_test_accs[test_task_id].append(test_acc)
-		firing_patterns_l1_1[task_id], firing_patterns_l2_1[task_id] = record_firing_rate(net, tasks[1]['test'])
-		firing_patterns_l1[task_id], firing_patterns_l2[task_id] = record_firing_rate(net, tasks[task_id]['test'])
-	
-	save_firing_patterns(firing_patterns_l1_1, './stash/id={}-firing-history-l1-1.csv'.format(trial_id))
-	save_firing_patterns(firing_patterns_l2_1, './stash/id={}-firing-history-l2-1.csv'.format(trial_id))
-	save_firing_patterns(firing_patterns_l1, './stash/id={}-firing-history-l1.csv'.format(trial_id))
-	save_firing_patterns(firing_patterns_l2, './stash/id={}-firing-history-l2.csv'.format(trial_id))
+				running_test_accs[test_task_id].append(test_acc)	
 
 	score = np.mean([running_test_accs[i][-1] for i in running_test_accs.keys()])
 	# score = (running_test_accs[1][-1] + running_test_accs[1][-2] + running_test_accs[1][-3])/3.0
@@ -204,10 +162,6 @@ if __name__ == "__main__":
 	print(score)
 	nni.report_final_result(score)
 	experiment.log_asset('./stash/{}.csv'.format(trial_id))
-	experiment.log_asset('./stash/id={}-firing-history-l1.csv'.format(trial_id))
-	experiment.log_asset('./stash/id={}-firing-history-l2.csv'.format(trial_id))
-	experiment.log_asset('./stash/id={}-firing-history-l1-1.csv'.format(trial_id))
-	experiment.log_asset('./stash/id={}-firing-history-l2-1.csv'.format(trial_id))
 	visualize_result(df, trial_id)
 	experiment.log_asset('./stash/{}.png'.format(trial_id))
 	experiment.log_figure('./stash/{}.png'.format(trial_id))
