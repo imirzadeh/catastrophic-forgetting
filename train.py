@@ -28,11 +28,10 @@ def parse_arguments():
 
 
 
-def train_single_epoch(net, loader, task_id, config):
+def train_single_epoch(net, optimizer, loader, task_id, config):
 	net = net.to(DEVICE)
 	net.train()
-	lr = max(config['lr']*(config['gamma']**task_id), config['lr_lb'])#0.015* 0.6**(task_id)
-	optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.8)
+	
 	criterion = nn.CrossEntropyLoss()
 	for batch_idx, (data, target) in enumerate(loader):
 		data = data.to(DEVICE)
@@ -105,15 +104,16 @@ if __name__ == "__main__":
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
 
-	config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.3, 'gamma': 0.1, 'lr_lb': 0.005}
+	config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.2, 'gamma': 0.1, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
-	
+	# lr = max(config['lr']*(config['gamma']**task_id), config['lr_lb'])#0.015* 0.6**(task_id)
 	TASKS = 5
 
 	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
 	net = ResNet18().to(DEVICE)
 	tasks = get_split_cifar100_tasks(TASKS)
+	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.8)
 
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 		for epoch in range(1, config['epochs']+1):
 			print(">>> epoch {}".format(epoch))
 			# train
-			net = train_single_epoch(net, train_loader, task_id, config)
+			net = train_single_epoch(net, optimizer, train_loader, task_id, config)
 			# eval
 			for test_task_id in range(1, TASKS+1):#[1, 2, 3]:#range(1, TASKS+1):
 				if test_task_id > task_id:
