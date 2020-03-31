@@ -50,10 +50,16 @@ def eval_single_epoch(net, loader, task_id):
 	test_loss = 0
 	correct = 0
 	crit = nn.CrossEntropyLoss()
+	cnt = 0
 	with torch.no_grad():
 		for data, target in loader:
+			cnt += 1
+
 			data = data.to(DEVICE)
 			target = target.to(DEVICE)
+			if cnt == 1:
+				print(data)
+				print(target)
 			output = net(data)#net(data, task_id)
 			test_loss += crit(output, target).item()
 			pred = output.data.max(1, keepdim=True)[1]
