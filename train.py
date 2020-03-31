@@ -106,16 +106,17 @@ if __name__ == "__main__":
 	trial_id = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 	args = parse_arguments()
 	experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg", auto_param_logging=False, auto_metric_logging=False, 
-						project_name="explore-cifar", workspace="nn-forget", disabled=False)
+						project_name="cifar20", workspace="nn-forget", disabled=False)
 
 	hidden_size = args.hidden_size
 	config = nni.get_next_parameter()
+	TASKS = 17
 
-	# config = {'epochs': 1, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.01, 'gamma': 0.1, 'lr_lb': 0.005}
+	# config = {'epochs': 5, 'dropout_1': 0.2, 'dropout_2':0.2, 'lr': 0.05, 'gamma': 0.99, 'lr_lb': 0.005}
 	config['trial'] = trial_id
 	config['hidden_size'] = hidden_size
+	config['tasks'] = TASKS
 	# lr = max(config['lr']*(config['gamma']**task_id), config['lr_lb'])#0.015* 0.6**(task_id)
-	TASKS = 5
 
 
 	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
