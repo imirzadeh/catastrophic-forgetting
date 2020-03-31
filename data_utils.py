@@ -114,8 +114,8 @@ def get_split_cifar100_tasks(num_tasks, shuffle=False, batch_size=BATCH_SIZE):
 
 	train = torchvision.datasets.CIFAR100('./data/', train=True, download=True, transform=transforms)
 	test = torchvision.datasets.CIFAR100('./data/', train=False, download=True, transform=transforms)
-	train_loader = torch.utils.data.DataLoader(train, pin_memory=True, num_workers=4)
-	test_loader = torch.utils.data.DataLoader(test, pin_memory=True, num_workers=4)
+	train_loader = torch.utils.data.DataLoader(train, batch_size=batch_size, pin_memory=True, num_workers=4)
+	test_loader = torch.utils.data.DataLoader(test, batch_size=batch_size, pin_memory=True, num_workers=4)
 
 	datasets = {}
 	for task_id in range(1, num_tasks):
