@@ -78,13 +78,13 @@ class BasicBlock(nn.Module):
 			self.shortcut = nn.Sequential(
 				nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1,
 						  stride=stride, bias=False),
-				nn.BatchNorm2d(self.expansion * planes),
+				#nn.BatchNorm2d(self.expansion * planes),
 				# nn.Dropout(0.05),
 			)
 
 	def forward(self, x):
-		out = relu(self.bn1(self.conv1(x)))
-		out = self.bn2(self.conv2(out))
+		out = relu(self.conv1(x)) #relu(self.bn1(self.conv1(x)))
+		out = self.conv2(out)
 		out += self.shortcut(x)
 		out = relu(out)
 		return out
@@ -96,7 +96,7 @@ class ResNet(nn.Module):
 		self.in_planes = nf
 
 		self.conv1 = conv3x3(3, nf * 1)
-		self.bn1 = nn.BatchNorm2d(nf * 1)
+		#self.bn1 = nn.BatchNorm2d(nf * 1)
 		self.layer1 = self._make_layer(block, nf * 1, num_blocks[0], stride=1)
 		self.layer2 = self._make_layer(block, nf * 2, num_blocks[1], stride=2)
 		self.layer3 = self._make_layer(block, nf * 4, num_blocks[2], stride=2)
@@ -113,7 +113,7 @@ class ResNet(nn.Module):
 
 	def forward(self, x, task_id):
 		bsz = x.size(0)
-		out = relu(self.bn1(self.conv1(x.view(bsz, 3, 32, 32))))
+		out = relu(self.conv1(x.view(bsz, 3, 32, 32)))
 		out = self.layer1(out)
 		out = self.layer2(out)
 		out = self.layer3(out)
