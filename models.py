@@ -222,6 +222,6 @@ class ResNet(nn.Module):
 
 def ResNet18(nclasses=100, nf=20, config={}):
 	net = ResNet(BasicBlock, [2, 2, 2, 2], nclasses, nf)
-	if config.get('orthogonal-init', False):
+	if config.get('orthogonal-init', 1):
 		net.apply(init_weights)
 	return net

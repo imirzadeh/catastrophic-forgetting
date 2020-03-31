@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
 
 	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
-	net = ResNet18().to(DEVICE)
+	net = ResNet18(config=config).to(DEVICE)
 	tasks = get_split_cifar100_tasks(TASKS)
 	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.8)
 	scheduler = MultiStepLR(optimizer, milestones=[1, 2, 3], gamma=config['gamma'])
