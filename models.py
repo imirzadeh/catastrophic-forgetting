@@ -150,25 +150,33 @@ class BasicBlock(nn.Module):
 		self.shortcut = nn.Sequential()
 		if stride != 1 or in_planes != self.expansion * planes:
 			self.shortcut = nn.Sequential(
-				nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1, stride=stride, bias=False),
+				nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1,
+						  stride=stride, bias=False),
 				# nn.BatchNorm2d(self.expansion * planes)
 			)
-		self.IC = nn.Sequential(
-			nn.BatchNorm2d(self.expansion * planes),
+		self.IC1 = nn.Sequential(
+			nn.BatchNorm2d(planes),
+			nn.Dropout(p=0.05)
+			)
+
+		self.IC2 = nn.Sequential(
+			nn.BatchNorm2d(planes),
 			nn.Dropout(p=0.05)
 			)
 
 	def forward(self, x):
+		# out = relu(self.bn1(self.conv1(x)))
+		# out = self.bn2(self.conv2(out))
+		# out += self.shortcut(x)
+		# out = relu(out)
+
 		out = self.conv1(x)
 		out = relu(out)
-		out = self.IC(out)
-		out = self.conv2(x)
-
-		# IC Layer
+		out = self.IC1(out)
 
 		out += self.shortcut(x)
 		out = relu(out)
-		out = self.IC(out)
+		out = self.IC2(out)
 		return out
 
 
