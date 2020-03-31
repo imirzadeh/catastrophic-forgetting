@@ -123,7 +123,7 @@ if __name__ == "__main__":
 	net = ResNet18().to(DEVICE)
 	tasks = get_split_cifar100_tasks(TASKS)
 	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.8)
-	#scheduler = MultiStepLR(optimizer, milestones=[1, 2, 3, 4], gamma=config['gamma'])
+	scheduler = MultiStepLR(optimizer, milestones=[1, 2, 3], gamma=config['gamma'])
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
 	
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 				else:
 					test_acc = eval_single_epoch(net, tasks[test_task_id]['test'], test_task_id)
 				running_test_accs[test_task_id].append(test_acc)
-		#scheduler.step(task_id)
+		scheduler.step(task_id)
 
 	score = np.mean([running_test_accs[i][-1] for i in running_test_accs.keys()])
 	# score = (running_test_accs[1][-1] + running_test_accs[1][-2] + running_test_accs[1][-3])/3.0

@@ -2,7 +2,7 @@ authorName: Iman Mirzadeh
 experimentName: NN-Forget-CIFAR-EXP
 trialConcurrency: 1
 maxExecDuration: 24h
-maxTrialNum: 100
+maxTrialNum: 280
 
 #choice: local, remote, pai
 trainingServicePlatform: local
