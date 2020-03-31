@@ -15,7 +15,7 @@ matplotlib.use('Agg')
 import seaborn as sns
 import matplotlib.pyplot as plt
 from models import ResNet18
-from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks,get_split_cifar100_tasks
+from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks,get_split_cifar100_tasks_2
 matplotlib.style.use('ggplot')
 	
 DEVICE = 'cuda'
@@ -110,9 +110,10 @@ if __name__ == "__main__":
 	# lr = max(config['lr']*(config['gamma']**task_id), config['lr_lb'])#0.015* 0.6**(task_id)
 	TASKS = 5
 
+
 	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
 	net = ResNet18().to(DEVICE)
-	tasks = get_split_cifar100_tasks(TASKS)
+	tasks = get_split_cifar100_tasks_2(TASKS)
 	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.8)
 
 	template = {i: [] for i in range(1, TASKS+1)}
