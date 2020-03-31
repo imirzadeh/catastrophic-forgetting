@@ -184,7 +184,7 @@ class ResNet(nn.Module):
 			self.in_planes = planes * block.expansion
 		return nn.Sequential(*layers)
 
-	def forward(self, x):
+	def forward(self, x, task_id):
 		bsz = x.size(0)
 		out = relu(self.bn1(self.conv1(x.view(bsz, 3, 32, 32))))
 		out = self.layer1(out)
@@ -194,6 +194,13 @@ class ResNet(nn.Module):
 		out = avg_pool2d(out, 4)
 		out = out.view(out.size(0), -1)
 		out = self.linear(out)
+		t = task_id
+		offset1 = int((t-1) * 5)
+		offset2 = int(t * 5)
+		if offset1 > 0:
+			out[:, :offset1].data.fill_(-10e10)
+		if offset2 < 100:
+			out[:, offset2:100].data.fill_(-10e10)
 		return out
 
 def ResNet18(nclasses=100, nf=20):
