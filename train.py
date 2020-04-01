@@ -121,9 +121,9 @@ if __name__ == "__main__":
 
 	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
 	net = ResNet18(config=config).to(DEVICE)
-	tasks = get_split_cifar100_tasks(TASKS)
-	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.8)
-	scheduler = MultiStepLR(optimizer, milestones=[1, 2, 3], gamma=config['gamma'])
+	tasks = get_split_cifar100_tasks(TASKS, batch_size=config['batch_size'])
+	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.5)
+	scheduler = MultiStepLR(optimizer, milestones=[5, 10], gamma=config['gamma'])
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
 	
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 			# train
 			net = train_single_epoch(net, optimizer, train_loader, task_id, config)
 
-			# rehearse
+			# replay episodic memory
 			for replay_task_id in range(1, task_id+1):
 				episodic_memory_loader = tasks[replay_task_id]['episodic_memory']
 				train_single_epoch(net, optimizer, episodic_memory_loader, task_id, config)

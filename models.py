@@ -140,7 +140,7 @@ def conv3x3(in_planes, out_planes, stride=1):
 class BasicBlock(nn.Module):
 	expansion = 1
 
-	def __init__(self, in_planes, planes, stride=1):
+	def __init__(self, in_planes, planes, stride=1, config={}):
 		super(BasicBlock, self).__init__()
 		self.conv1 = conv3x3(in_planes, planes, stride)
 		# self.bn1 = nn.BatchNorm2d(planes)
@@ -156,12 +156,12 @@ class BasicBlock(nn.Module):
 			)
 		self.IC1 = nn.Sequential(
 			nn.BatchNorm2d(planes),
-			nn.Dropout(p=0.05)
+			nn.Dropout(p=config['dropout'])
 			)
 
 		self.IC2 = nn.Sequential(
 			nn.BatchNorm2d(planes),
-			nn.Dropout(p=0.05)
+			nn.Dropout(p=config['dropout'])
 			)
 
 	def forward(self, x):
@@ -181,16 +181,16 @@ class BasicBlock(nn.Module):
 
 
 class ResNet(nn.Module):
-	def __init__(self, block, num_blocks, num_classes, nf):
+	def __init__(self, block, num_blocks, num_classes, nf, config={}):
 		super(ResNet, self).__init__()
 		self.in_planes = nf
 
 		self.conv1 = conv3x3(3, nf * 1)
 		self.bn1 = nn.BatchNorm2d(nf * 1)
-		self.layer1 = self._make_layer(block, nf * 1, num_blocks[0], stride=1)
-		self.layer2 = self._make_layer(block, nf * 2, num_blocks[1], stride=2)
-		self.layer3 = self._make_layer(block, nf * 4, num_blocks[2], stride=2)
-		self.layer4 = self._make_layer(block, nf * 8, num_blocks[3], stride=2)
+		self.layer1 = self._make_layer(block, nf * 1, num_blocks[0], stride=1, config=config)
+		self.layer2 = self._make_layer(block, nf * 2, num_blocks[1], stride=2, config=config)
+		self.layer3 = self._make_layer(block, nf * 4, num_blocks[2], stride=2, config=config)
+		self.layer4 = self._make_layer(block, nf * 8, num_blocks[3], stride=2, config=config)
 		self.linear = nn.Linear(nf * 8 * block.expansion, num_classes)
 
 	def _make_layer(self, block, planes, num_blocks, stride):
@@ -221,7 +221,7 @@ class ResNet(nn.Module):
 		return out
 
 def ResNet18(nclasses=100, nf=20, config={}):
-	net = ResNet(BasicBlock, [2, 2, 2, 2], nclasses, nf)
+	net = ResNet(BasicBlock, [2, 2, 2, 2], nclasses, nf, config=config)
 	if config.get('orthogonal-init', 1):
 		net.apply(init_weights)
 	return net
