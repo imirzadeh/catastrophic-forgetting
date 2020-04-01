@@ -150,9 +150,9 @@ if __name__ == "__main__":
 			net = train_single_epoch(net, optimizer, train_loader, task_id, config)
 
 			# replay episodic memory
-			for replay_task_id in range(1, task_id+1):
-				episodic_memory_loader = tasks[replay_task_id]['episodic_memory']
-				train_single_epoch(net, optimizer, episodic_memory_loader, task_id, config)
+			# for replay_task_id in range(1, task_id+1):
+			# 	episodic_memory_loader = tasks[replay_task_id]['episodic_memory']
+			# 	train_single_epoch(net, optimizer, episodic_memory_loader, task_id, config)
 
 			# eval
 			for test_task_id in range(1, TASKS+1):#[1, 2, 3]:#range(1, TASKS+1):
