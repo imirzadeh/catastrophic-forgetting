@@ -193,11 +193,11 @@ class ResNet(nn.Module):
 		self.layer4 = self._make_layer(block, nf * 8, num_blocks[3], stride=2, config=config)
 		self.linear = nn.Linear(nf * 8 * block.expansion, num_classes)
 
-	def _make_layer(self, block, planes, num_blocks, stride):
+	def _make_layer(self, block, planes, num_blocks, stride, config):
 		strides = [stride] + [1] * (num_blocks - 1)
 		layers = []
 		for stride in strides:
-			layers.append(block(self.in_planes, planes, stride))
+			layers.append(block(self.in_planes, planes, stride, config=config))
 			self.in_planes = planes * block.expansion
 		return nn.Sequential(*layers)
 
