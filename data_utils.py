@@ -75,7 +75,7 @@ def get_rotated_mnist_tasks(num_tasks=5, shuffle=False, batch_size=BATCH_SIZE):
 def get_split_cifar100(task_id, batch_size=BATCH_SIZE, shuffle=False):
 	# convention: tasks starts from 1 not 0 !
 	# task_id = 1 (i.e., first task) => start_class = 0, end_class = 4
-	episodic_memory_size = 50
+	episodic_memory_size = 65
 
 	start_class = (task_id-1)*5
 	end_class = task_id * 5
