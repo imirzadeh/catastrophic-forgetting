@@ -4,5 +4,6 @@
   "orthogonal-init": {"_type": "choice", "_value": [1]},
   "dropout": {"_type": "choice", "_value": [0.03, 0.05, 0.1]},
   "batch_size": {"_type": "choice", "_value": [10, 16, 32]},
-  "momentum": {"_type": "choice", "_value": [0.25, 0.5, 0.9]}
+  "momentum": {"_type": "choice", "_value": [0.25, 0.5, 0.9]},
+  "last-epoch": {"_type": "choice", "_value": [2, 3, 4]}
 }

@@ -124,7 +124,7 @@ if __name__ == "__main__":
 	tasks = get_split_cifar100_tasks(TASKS, batch_size=config['batch_size'])
 	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=config['momentum'])
 	# scheduler = MultiStepLR(optimizer, milestones=[5, 10], gamma=config['gamma'])
-	scheduler = StepLR(optimizer, gamma=config['gamma'], step_size=1)
+	scheduler = StepLR(optimizer, gamma=config['gamma'], step_size=1, last_epoch=config['last-epoch'])
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
 	
