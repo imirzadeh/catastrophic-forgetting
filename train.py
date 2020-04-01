@@ -122,8 +122,9 @@ if __name__ == "__main__":
 	#net = MLP(hidden_layers=[hidden_size, hidden_size, 10], config=config).to(DEVICE)
 	net = ResNet18(config=config).to(DEVICE)
 	tasks = get_split_cifar100_tasks(TASKS, batch_size=config['batch_size'])
-	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=0.5)
-	scheduler = MultiStepLR(optimizer, milestones=[5, 10], gamma=config['gamma'])
+	optimizer = optim.SGD(net.parameters(), lr=config['lr'], momentum=config['momentum'])
+	# scheduler = MultiStepLR(optimizer, milestones=[5, 10], gamma=config['gamma'])
+	scheduler = StepLR(optimizer, step_size=2)
 	template = {i: [] for i in range(1, TASKS+1)}
 	running_test_accs = copy.deepcopy(template)
 	
@@ -152,7 +153,8 @@ if __name__ == "__main__":
 			for replay_task_id in range(1, task_id+1):
 				episodic_memory_loader = tasks[replay_task_id]['episodic_memory']
 				train_single_epoch(net, optimizer, episodic_memory_loader, task_id, config)
-
+				scheduler.step()
+				
 			# eval
 			for test_task_id in range(1, TASKS+1):#[1, 2, 3]:#range(1, TASKS+1):
 				if test_task_id > task_id:
@@ -160,7 +162,7 @@ if __name__ == "__main__":
 				else:
 					test_acc = eval_single_epoch(net, tasks[test_task_id]['test'], test_task_id)
 				running_test_accs[test_task_id].append(test_acc)
-		scheduler.step(task_id)
+		scheduler.step()
 
 	score = np.mean([running_test_accs[i][-1] for i in running_test_accs.keys()])
 	# score = (running_test_accs[1][-1] + running_test_accs[1][-2] + running_test_accs[1][-3])/3.0
