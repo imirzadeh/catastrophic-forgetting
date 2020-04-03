@@ -115,7 +115,7 @@ def run():
 
 	# hooks
 	setup_experiment()
-
+	assert next(model.parameters()).is_cuda
 	# main loop
 	time = 0
 	for current_task_id in range(1, NUM_TASKS+1):
