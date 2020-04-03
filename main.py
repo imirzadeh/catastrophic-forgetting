@@ -9,7 +9,7 @@ from models import MLP
 from data_utils import get_permuted_mnist_tasks
 from hessian_eigenthings import compute_hessian_eigenthings
 from pathlib import Path
-
+from utils import visualize_result
 
 config = nni.get_next_parameter()
 config = {'epochs': 2, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 128, 'lr': 0.1, 'gamma': 0.2}
