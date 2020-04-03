@@ -17,6 +17,7 @@ import pandas as pd
 from utils import get_full_hessian, visualize_result
 
 config = nni.get_next_parameter()
+config = {'epochs': 5, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 128, 'lr': 0.1, }
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
