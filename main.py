@@ -110,8 +110,8 @@ def run():
 	validator = create_supervised_evaluator(model,
 											device=DEVICE,
 											metrics={ 
-											'accuracy': Accuracy(),
-											'loss': Loss(criterion)})
+											'accuracy': Accuracy(device=DEVICE),
+											'loss': Loss(criterion, device=DEVICE)})
 
 	# hooks
 	setup_experiment()
