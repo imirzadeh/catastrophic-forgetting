@@ -12,7 +12,7 @@ from pathlib import Path
 from utils import visualize_result
 
 config = nni.get_next_parameter()
-config = {'epochs': 5, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 64, 'lr': 0.1, 'gamma': 0.75}
+# config = {'epochs': 5, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 64, 'lr': 0.1, 'gamma': 0.75}
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
 DEVICE = 'cuda'
@@ -78,7 +78,7 @@ def log_hessian(model, loader, time, task_id):
 		loader,
 		criterion,
 		num_eigenthings=NUM_EIGENS,
-		power_iter_steps=10,
+		power_iter_steps=15,
 		power_iter_err_threshold=1e-5,
 		momentum=0,
 		use_gpu=True,
