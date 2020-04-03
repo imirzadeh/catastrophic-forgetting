@@ -78,7 +78,7 @@ def log_metrics(engine, time, task_id):
 	experiment.log_metric(name='task {} - acc'.format(task_id), step=time-1, value=acc)
 
 def log_hessian(model, loader, time, task_id):
-	criterion = torch.nn.CrossEntropyLoss()
+	criterion = torch.nn.CrossEntropyLoss().to(DEVICE)
 	use_gpu = True if DEVICE != 'cpu' else False
 	est_eigenvals, est_eigenvecs = compute_hessian_eigenthings(
 		model,
@@ -104,8 +104,8 @@ def run():
 	tasks = get_permuted_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
 
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.8)
-	criterion = nn.CrossEntropyLoss()
+	optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=0.8)
+	criterion = nn.CrossEntropyLoss().to(DEVICE)
 	trainer = create_supervised_trainer(model, optimizer, criterion, device=DEVICE)
 	validator = create_supervised_evaluator(model,
 											device=DEVICE,
