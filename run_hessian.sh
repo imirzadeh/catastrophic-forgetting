@@ -1,0 +1,1 @@
+nnictl create --config configs/config-hessian.yml --port 9929
