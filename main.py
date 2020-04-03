@@ -100,7 +100,7 @@ def save_checkpoint(model, time):
 
 def run():
 	# basics
-	model = MLP([HIDDENS, HIDDENS, 10], config = {'dropout': 0.0})
+	model = MLP([HIDDENS, HIDDENS, 10], config = {'dropout': 0.0}).to(DEVICE)
 	tasks = get_permuted_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
 
