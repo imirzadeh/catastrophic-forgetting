@@ -55,7 +55,6 @@ def end_experiment():
 
 	experiment.log_metric(name='score', value=score)
 	experiment.log_metric(name='forget', value=forget)
-	experiment.log_metric('score', )
 	experiment.log_asset_folder(EXPERIMENT_DIRECTORY)
 	experiment.end()
 
