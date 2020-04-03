@@ -20,7 +20,7 @@ config = nni.get_next_parameter()
 config = {'epochs': 5, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 128, 'lr': 0.1, }
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+DEVICE = "cpu" if (not torch.cuda.is_available()) else "cuda:0"
 
 # =============== SETTINGS ================
 NUM_TASKS = 5
@@ -29,9 +29,9 @@ EPOCHS = config['epochs']
 HIDDENS = config['hiddens']
 BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-                        project_name="explore-hessian",
-                        auto_param_logging=False, auto_metric_logging=False,
-                        workspace="nn-forget", disabled=False)
+						project_name="explore-hessian",
+						auto_param_logging=False, auto_metric_logging=False,
+						workspace="nn-forget", disabled=False)
 
 loss_db = {t:[10 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
 acc_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
