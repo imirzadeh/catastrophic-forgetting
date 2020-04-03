@@ -9,7 +9,13 @@ import matplotlib.pyplot as plt
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description='Arg parser')
-	parser.add_argument('--hidden_size', default=100, type=int, help='num hiddens')
+	parser.add_argument('--hiddens', default=100, type=int, help='num hiddens')
+	parser.add_argument('--epochs', default=5, type=int, help='epochs per task')
+	parser.add_argument('--lr', default=0.01, type=float, help='learning rate')
+	parser.add_argument('--lr-decay', default=0.8, type=float, help='learning rate')
+	parser.add_argument('--tasks', default=5, type=int, help='number of tasks')
+	parser.add_argument('--batch_size', default=10, type=int, help='number of tasks')
+
 	args = parser.parse_args()
 	return args
 

@@ -27,8 +27,8 @@ class MLP(nn.Module):
 		self.relu = nn.ReLU(inplace=True)
 		self.W2 = nn.Linear(hidden_layers[0], hidden_layers[1])
 		self.W3 = nn.Linear(hidden_layers[1], hidden_layers[2])
-		# self.dropout_1 = nn.Dropout(p=config['dropout'])
-		# self.dropout_2 = nn.Dropout(p=config['dropout'])
+		self.dropout_1 = nn.Dropout(p=config['dropout'])
+		self.dropout_2 = nn.Dropout(p=config['dropout'])
 	
 	def get_firing_acts(self, x):
 		x = x.view(-1, 784)
@@ -44,10 +44,10 @@ class MLP(nn.Module):
 		x = x.view(-1, 784)
 		out = self.W1(x)
 		out = self.relu(out)
-		# out = self.dropout_1(out)
+		out = self.dropout_1(out)
 		out = self.W2(out)
 		out = self.relu(out)
-		# out = self.dropout_2(out)
+		out = self.dropout_2(out)
 		out = self.W3(out)
 		return out
 

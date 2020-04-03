@@ -1,6 +1,7 @@
 from comet_ml import Experiment
 import torch
 import torch.nn as nn
+import nni
 from models import MLP
 from ignite.metrics import Accuracy, Loss
 from data_utils import get_permuted_mnist_tasks
@@ -15,14 +16,17 @@ import numpy as np
 import pandas as pd
 from utils import get_full_hessian, visualize_result
 
-TRIAL_ID = 'a2GyW7'
+config = nni.get_next_parameter()
+TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
-DEVICE = 'cpu'
-NUM_TASKS = 3
-EPOCHS = 2
-NUM_EIGENS = 5
-HIDDENS = 50
-BATCH_SIZE = 64
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+# =============== SETTINGS ================
+NUM_TASKS = 5
+NUM_EIGENS = 10
+EPOCHS = config['epochs']
+HIDDENS = config['hiddens']
+BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
                         project_name="explore-hessian",
                         auto_param_logging=False, auto_metric_logging=False,
@@ -32,13 +36,13 @@ loss_db = {t:[10 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1
 acc_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
 hessian_eig_db = {}
 
-	
+
 def setup_experiment():
 	print('Experiment started')
+	experiment.log_parameters(config)
 	Path(EXPERIMENT_DIRECTORY).mkdir(parents=True, exist_ok=True)
 
 def end_experiment():
-
 	acc_df = pd.DataFrame(acc_db)
 	acc_df.to_csv(EXPERIMENT_DIRECTORY+'/accs.csv')
 	visualize_result(acc_df, EXPERIMENT_DIRECTORY+'/accs.png')
@@ -50,6 +54,12 @@ def end_experiment():
 	hessian_df = pd.DataFrame(hessian_eig_db)
 	hessian_df.to_csv(EXPERIMENT_DIRECTORY+'/hessian_eigs.csv')
 
+	score = np.mean([acc_db[i][-1] for i in acc_db.keys()])
+	forget = np.mean([max(acc_db[i])-acc_db[i][-1] for i in range(1, NUM_TASKS)])/100.0
+
+	experiment.log_metric(name='score', value=score)
+	experiment.log_metric(name='forget', value=forget)
+	experiment.log_metric('score', )
 	experiment.log_asset_folder(EXPERIMENT_DIRECTORY)
 	experiment.end()
 
@@ -85,7 +95,7 @@ def log_hessian(model, loader, time, task_id):
 
 def save_checkpoint(model, time):
 	filename = '{directory}/model-{time}.pth'.format(directory=EXPERIMENT_DIRECTORY, time=time)
-	torch.save(model.state_dict(), filename)
+	torch.save(model.cpu().state_dict(), filename)
 
 def run():
 	# basics
