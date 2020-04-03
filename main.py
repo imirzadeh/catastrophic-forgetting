@@ -115,7 +115,6 @@ def run():
 
 	# hooks
 	setup_experiment()
-	assert next(model.parameters()).is_cuda
 	# main loop
 	time = 0
 	for current_task_id in range(1, NUM_TASKS+1):
@@ -129,6 +128,7 @@ def run():
 
 			# evaluate on all tasks up to now
 			for prev_task_id in range(1, current_task_id+1):
+				assert next(model.parameters()).is_cuda
 				val_loader = tasks[prev_task_id]['test']
 				validator.run(val_loader)
 				log_metrics(validator, time, prev_task_id)
