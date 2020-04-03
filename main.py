@@ -1,30 +1,25 @@
+import os
+import nni
+import numpy as np
+import pandas as pd
 from comet_ml import Experiment
 import torch
 import torch.nn as nn
-import nni
 from models import MLP
-from ignite.metrics import Accuracy, Loss
 from data_utils import get_permuted_mnist_tasks
 from hessian_eigenthings import compute_hessian_eigenthings
-from ignite.engine import Events, create_supervised_trainer,create_supervised_evaluator
-from ignite.handlers import ModelCheckpoint
-from comet_ml import Experiment
 from pathlib import Path
-import os
-import copy
-import numpy as np
-import pandas as pd
-from utils import get_full_hessian, visualize_result
+
 
 config = nni.get_next_parameter()
-config = {'epochs': 5, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 128, 'lr': 0.1, }
+config = {'epochs': 2, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 128, 'lr': 0.1, 'gamma': 0.2}
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
 DEVICE = 'cuda'
 
 # =============== SETTINGS ================
-NUM_TASKS = 5
-NUM_EIGENS = 10
+NUM_TASKS = 2
+NUM_EIGENS = 3
 EPOCHS = config['epochs']
 HIDDENS = config['hiddens']
 BATCH_SIZE = config['batch_size']
@@ -64,8 +59,7 @@ def end_experiment():
 	experiment.log_asset_folder(EXPERIMENT_DIRECTORY)
 	experiment.end()
 
-def log_metrics(engine, time, task_id):
-	metrics = engine.state.metrics
+def log_metrics(metrics, time, task_id):
 	print('epoch {}, metrics: {}'.format(time, metrics))
 	# log to db
 	acc = metrics['accuracy']
@@ -88,7 +82,7 @@ def log_hessian(model, loader, time, task_id):
 		power_iter_steps=10,
 		power_iter_err_threshold=1e-5,
 		momentum=0,
-		use_gpu=use_gpu,
+		use_gpu=True,
 	)
 	key = 'task-{}-epoch-{}'.format(task_id, time-1)
 	hessian_eig_db[key] = est_eigenvals
@@ -98,20 +92,47 @@ def save_checkpoint(model, time):
 	filename = '{directory}/model-{time}.pth'.format(directory=EXPERIMENT_DIRECTORY, time=time)
 	torch.save(model.cpu().state_dict(), filename)
 
+def train_single_epoch(net, optimizer, loader, criterion):
+	net = net.to(DEVICE)
+	net.train()
+	
+	for batch_idx, (data, target) in enumerate(loader):
+		data = data.to(DEVICE)
+		target = target.to(DEVICE)
+		optimizer.zero_grad()
+		pred = net(data)#net(data, task_id)
+		loss = criterion(pred, target)
+		loss.backward()
+		optimizer.step()
+	return net
+
+def eval_single_epoch(net, loader, criterion):
+	net = net.to(DEVICE)
+	net.eval()
+	test_loss = 0
+	correct = 0
+	with torch.no_grad():
+		for data, target in loader:
+			data = data.to(DEVICE)
+			target = target.to(DEVICE)
+			output = net(data)
+			test_loss += criterion(output, target).item()
+			pred = output.data.max(1, keepdim=True)[1]
+			correct += pred.eq(target.data.view_as(pred)).sum()
+	test_loss /= len(loader.dataset)
+	correct = correct.to('cpu')
+	avg_acc = 100.0 * float(correct.numpy()) / len(loader.dataset)
+	return {'accuracy': avg_acc, 'loss': test_loss}
+
 def run():
 	# basics
-	model = MLP([HIDDENS, HIDDENS, 10], config = {'dropout': 0.0}).to(DEVICE)
+	model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
 	tasks = get_permuted_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
-
 	optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=0.8)
+	scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
 	criterion = nn.CrossEntropyLoss().to(DEVICE)
-	trainer = create_supervised_trainer(model, optimizer, criterion, device=DEVICE)
-	validator = create_supervised_evaluator(model,
-											device=DEVICE,
-											metrics={ 
-											'accuracy': Accuracy(device=DEVICE),
-											'loss': Loss(criterion, device=DEVICE)})
+
 
 	# hooks
 	setup_experiment()
@@ -122,7 +143,7 @@ def run():
 		train_loader =  tasks[current_task_id]['train']
 		for epoch in range(1, EPOCHS+1):
 			# train and save
-			trainer.run(train_loader)
+			train_single_epoch(model, optimizer, train_loader, criterion)
 			time += 1
 			save_checkpoint(model, time)
 
@@ -130,9 +151,10 @@ def run():
 			for prev_task_id in range(1, current_task_id+1):
 				model = model.to(DEVICE)
 				val_loader = tasks[prev_task_id]['test']
-				validator.run(val_loader)
-				log_metrics(validator, time, prev_task_id)
+				metrics = eval_single_epoch(model, val_loader, criterion)
+				log_metrics(metrics, time, prev_task_id)
 				log_hessian(model, val_loader, time, prev_task_id)
+		scheduler.step()
 	end_experiment()
 if __name__ == "__main__":
 	run()
