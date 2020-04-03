@@ -108,7 +108,7 @@ def run():
 	criterion = nn.CrossEntropyLoss().to(DEVICE)
 	trainer = create_supervised_trainer(model, optimizer, criterion, device=DEVICE)
 	validator = create_supervised_evaluator(model,
-											device='cuda',
+											device=DEVICE,
 											metrics={ 
 											'accuracy': Accuracy(device=DEVICE),
 											'loss': Loss(criterion, device=DEVICE)})
@@ -128,7 +128,7 @@ def run():
 
 			# evaluate on all tasks up to now
 			for prev_task_id in range(1, current_task_id+1):
-				assert next(model.parameters()).is_cuda
+				model = model.to(DEVICE)
 				val_loader = tasks[prev_task_id]['test']
 				validator.run(val_loader)
 				log_metrics(validator, time, prev_task_id)
