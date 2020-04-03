@@ -22,7 +22,7 @@ def get_permuted_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
 		idx_permute = np.array(range(784))
 	else:
 		idx_permute = torch.from_numpy(np.random.RandomState().permutation(784))
-	transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
+	transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor().cuda(),
 				torchvision.transforms.Lambda(lambda x: x.view(-1)[idx_permute] ),
 				])
 	# torchvision.transforms.Normalize((0.1307,), (0.3081,)) 
