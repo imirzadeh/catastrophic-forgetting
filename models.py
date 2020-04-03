@@ -1,4 +1,4 @@
-# Copyright 2017-present, Facebook, Inc.
+# Copyright 2017-present, Facebook, Inc.	
 # All rights reserved.
 #
 # This source code is licensed under the license found in the
@@ -23,15 +23,12 @@ class MLP(nn.Module):
 	def __init__(self, hidden_layers, config):
 		super(MLP, self).__init__()
 		self.num_time_tensors = 50
-		# self.W1 = nn.Linear(784+self.num_time_tensors, hidden_layers[0])
 		self.W1 = nn.Linear(784, hidden_layers[0])
-		# self.relu = nn.LeakyReLU(0.01)	
-		self.relu = nn.ReLU()
+		self.relu = nn.ReLU(inplace=True)
 		self.W2 = nn.Linear(hidden_layers[0], hidden_layers[1])
 		self.W3 = nn.Linear(hidden_layers[1], hidden_layers[2])
-		self.dropout_1 = nn.Dropout(p=config['dropout_1'])
-		self.dropout_2 = nn.Dropout(p=config['dropout_2'])
-		self.batchnorm = nn.BatchNorm1d(hidden_layers[0])
+		# self.dropout_1 = nn.Dropout(p=config['dropout'])
+		# self.dropout_2 = nn.Dropout(p=config['dropout'])
 	
 	def get_firing_acts(self, x):
 		x = x.view(-1, 784)
@@ -43,20 +40,16 @@ class MLP(nn.Module):
 		l2 = torch.sum((out > 0.0).float(), dim=0)
 		return l1.cpu(), l2.cpu()
 
-	def forward(self, x, task_id):
-		# ratio = 0.05
+	def forward(self, x, task_id=None):
 		x = x.view(-1, 784)
-		# x = torch.cat((ratio*task_id*torch.ones((x.shape[0], self.num_time_tensors)), x), dim=1)
 		out = self.W1(x)
 		out = self.relu(out)
-		out = self.dropout_1(out)
-		# out = torch.cat((ratio*task_id*torch.ones((out.shape[0], self.num_time_tensors)), out), dim=1)
+		# out = self.dropout_1(out)
 		out = self.W2(out)
 		out = self.relu(out)
-		out = self.dropout_2(out)
+		# out = self.dropout_2(out)
 		out = self.W3(out)
 		return out
-
 
 
 # def conv3x3(in_planes, out_planes, stride=1):
