@@ -12,14 +12,14 @@ from pathlib import Path
 from utils import visualize_result
 
 config = nni.get_next_parameter()
-config = {'epochs': 2, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 128, 'lr': 0.1, 'gamma': 0.2}
+config = {'epochs': 5, 'hiddens': 100, 'dropout': 0.0, 'batch_size': 64, 'lr': 0.1, 'gamma': 0.75}
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
 DEVICE = 'cuda'
 
 # =============== SETTINGS ================
-NUM_TASKS = 2
-NUM_EIGENS = 3
+NUM_TASKS = 5
+NUM_EIGENS = 10
 EPOCHS = config['epochs']
 HIDDENS = config['hiddens']
 BATCH_SIZE = config['batch_size']
