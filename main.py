@@ -19,7 +19,7 @@ DEVICE = 'cuda'
 
 # =============== SETTINGS ================
 NUM_TASKS = 5
-NUM_EIGENS = 10
+NUM_EIGENS = 3
 EPOCHS = config['epochs']
 HIDDENS = config['hiddens']
 BATCH_SIZE = config['batch_size']
@@ -78,7 +78,7 @@ def log_hessian(model, loader, time, task_id):
 		loader,
 		criterion,
 		num_eigenthings=NUM_EIGENS,
-		power_iter_steps=15,
+		power_iter_steps=12,
 		power_iter_err_threshold=1e-5,
 		momentum=0,
 		use_gpu=True,
@@ -152,7 +152,8 @@ def run():
 				val_loader = tasks[prev_task_id]['test']
 				metrics = eval_single_epoch(model, val_loader, criterion)
 				log_metrics(metrics, time, prev_task_id)
-				log_hessian(model, val_loader, time, prev_task_id)
+				if epoch == EPOCHS and (prev_task_id == 1 or prev_task_id == 2):
+					log_hessian(model, val_loader, time, prev_task_id)
 		scheduler.step()
 	end_experiment()
 if __name__ == "__main__":
