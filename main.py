@@ -6,7 +6,7 @@ from comet_ml import Experiment
 import torch
 import torch.nn as nn
 from models import MLP
-from data_utils import get_permuted_mnist_tasks
+from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks
 from hessian_eigenthings import compute_hessian_eigenthings
 from pathlib import Path
 from utils import visualize_result
@@ -24,7 +24,7 @@ EPOCHS = config['epochs']
 HIDDENS = config['hiddens']
 BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-						project_name="explore-hessian",
+						project_name="explore-hessian-rot",
 						auto_param_logging=False, auto_metric_logging=False,
 						workspace="nn-forget", disabled=False)
 
@@ -126,7 +126,7 @@ def eval_single_epoch(net, loader, criterion):
 def run():
 	# basics
 	model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
-	tasks = get_permuted_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
+	tasks = get_rotated_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
 	optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=0.8)
 	scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
