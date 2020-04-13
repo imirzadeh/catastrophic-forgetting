@@ -81,7 +81,7 @@ def log_hessian(model, loader, time, task_id):
 		loader,
 		criterion,
 		num_eigenthings=NUM_EIGENS,
-		power_iter_steps=10,
+		power_iter_steps=12,
 		power_iter_err_threshold=1e-5,
 		momentum=0,
 		use_gpu=True,
