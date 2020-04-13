@@ -131,8 +131,8 @@ def run():
 	model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
 	tasks = get_rotated_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
-	optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['momentum'])
-	scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
+	# optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['momentum'])
+	# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
 	criterion = nn.CrossEntropyLoss().to(DEVICE)
 
 
@@ -143,6 +143,8 @@ def run():
 	for current_task_id in range(1, NUM_TASKS+1):
 		print("========== TASK {} / {} ============".format(current_task_id, NUM_TASKS))
 		train_loader =  tasks[current_task_id]['train']
+		task_lr = config['lr']*(config['gamma']**(current_task_id-1))
+		optimizer = torch.optim.SGD(model.parameters(), lr=task_lr, momentum=config['momentum'])
 		for epoch in range(1, EPOCHS+1):
 			# train and save
 			train_single_epoch(model, optimizer, train_loader, criterion)
@@ -157,7 +159,7 @@ def run():
 				if epoch == EPOCHS:
 					log_hessian(model, val_loader, time, prev_task_id)
 					save_checkpoint(model, time)
-		scheduler.step()
+		# scheduler.step()
 	end_experiment()
 if __name__ == "__main__":
 	run()
