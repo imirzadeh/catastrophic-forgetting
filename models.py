@@ -23,30 +23,29 @@ class MLP(nn.Module):
 	def __init__(self, hidden_layers, config):
 		super(MLP, self).__init__()
 		self.num_time_tensors = 50
+		self.config = config
 		self.W1 = nn.Linear(784, hidden_layers[0])
 		self.relu = nn.ReLU(inplace=True)
 		self.W2 = nn.Linear(hidden_layers[0], hidden_layers[1])
 		self.W3 = nn.Linear(hidden_layers[1], hidden_layers[2])
 		self.dropout_1 = nn.Dropout(p=config['dropout'])
 		self.dropout_2 = nn.Dropout(p=config['dropout'])
-	
-	def get_firing_acts(self, x):
-		x = x.view(-1, 784)
-		out = self.W1(x)
-		out = self.relu(out)
-		l1 = torch.sum((out > 0.0).float(), dim=0)
-		out = self.W2(out)
-		out = self.relu(out)
-		l2 = torch.sum((out > 0.0).float(), dim=0)
-		return l1.cpu(), l2.cpu()
+		if config['batchnorm'] > 0.0:
+			self.bn1 = nn.BatchNorm1d(hidden_layers[0], momentum=config['batchnorm'])
+			self.bn2 = nn.BatchNorm1d(hidden_layers[1], momentum=config['batchnorm'])
+
 
 	def forward(self, x, task_id=None):
 		x = x.view(-1, 784)
 		out = self.W1(x)
 		out = self.relu(out)
+		if self.config['batchnorm'] > 0.0:
+			out = self.bn1(out)
 		out = self.dropout_1(out)
 		out = self.W2(out)
 		out = self.relu(out)
+		if self.config['batchnorm'] > 0.0:
+			out = self.bn2(out)
 		out = self.dropout_2(out)
 		out = self.W3(out)
 		return out
