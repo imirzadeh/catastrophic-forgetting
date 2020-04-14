@@ -1,9 +1,9 @@
 { "epochs": {"_type":"choice", "_value":[5]},
-  "dropout": {"_type":"choice", "_value":[0.0, 0.1, 0.25, 0.5]},
-  "batchnorm": {"_type":"choice", "_value":[0.0, 0.0, 0.1, 0.5, 0.9]},
-  "lr": {"_type": "choice", "_value": [0.15, 0.1, 0.05, 0.01, 0.001]},
-  "gamma": {"_type": "choice", "_value": [1.0, 0.9, 0.75, 0.5, 0.4]},
-  "momentum": {"_type": "choice", "_value": [0.5, 0.8]},
+  "dropout": {"_type":"choice", "_value":[0.0, 0.25, 0.5]},
+  "batchnorm": {"_type":"choice", "_value":[0.0]},
+  "lr": {"_type": "choice", "_value": [0.15, 0.1, 0.05, 0.01]},
+  "gamma": {"_type": "choice", "_value": [1.0, 0.9, 0.75, 0.5, 0.4, 0.35, 0.3, 0.25, 0.2]},
+  "momentum": {"_type": "choice", "_value": [0.8]},
   "hiddens": {"_type": "choice", "_value": [100]},
   "batch_size": {"_type": "choice", "_value": [10, 64]}
 }

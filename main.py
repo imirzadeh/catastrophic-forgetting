@@ -12,13 +12,13 @@ from pathlib import Path
 from utils import visualize_result
 
 config = nni.get_next_parameter()
-# config = {'epochs': 5, 'hiddens': 100, 'dropout': 0.5,
-# 		 'batch_size': 64, 'lr': 0.1, 'gamma': 0.9,
+# config = {'epochs': 5, 'hiddens': 100, 'dropout': 0.25,
+# 		 'batch_size': 64, 'lr': 0.1, 'gamma': 0.25,
 # 		 'batchnorm': 0.0, 'momentum': 0.8}
 
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
-DEVICE = 'cuda'
+DEVICE = 'cuda'			
 
 # =============== SETTINGS ================
 NUM_TASKS = 5
@@ -81,7 +81,7 @@ def log_hessian(model, loader, time, task_id):
 		loader,
 		criterion,
 		num_eigenthings=NUM_EIGENS,
-		power_iter_steps=12,
+		power_iter_steps=15,
 		power_iter_err_threshold=1e-5,
 		momentum=0,
 		use_gpu=True,
@@ -129,7 +129,7 @@ def eval_single_epoch(net, loader, criterion):
 def run():
 	# basics
 	model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
-	tasks = get_rotated_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
+	tasks = get_permuted_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
 	# optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['momentum'])
 	# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
@@ -143,10 +143,11 @@ def run():
 	for current_task_id in range(1, NUM_TASKS+1):
 		print("========== TASK {} / {} ============".format(current_task_id, NUM_TASKS))
 		train_loader =  tasks[current_task_id]['train']
-		task_lr = config['lr']*(config['gamma']**(current_task_id-1))
-		optimizer = torch.optim.SGD(model.parameters(), lr=task_lr, momentum=config['momentum'])
+		# task_lr = config['lr']*(config['gamma']**(current_task_id-1))
 		for epoch in range(1, EPOCHS+1):
 			# train and save
+			lr = config['lr']* config['gamma']**(current_task_id)
+			optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=config['momentum'])
 			train_single_epoch(model, optimizer, train_loader, criterion)
 			time += 1
 

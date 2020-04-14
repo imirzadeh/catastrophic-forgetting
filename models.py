@@ -30,22 +30,22 @@ class MLP(nn.Module):
 		self.W3 = nn.Linear(hidden_layers[1], hidden_layers[2])
 		self.dropout_1 = nn.Dropout(p=config['dropout'])
 		self.dropout_2 = nn.Dropout(p=config['dropout'])
-		if config['batchnorm'] > 0.0:
-			self.bn1 = nn.BatchNorm1d(hidden_layers[0], momentum=config['batchnorm'])
-			self.bn2 = nn.BatchNorm1d(hidden_layers[1], momentum=config['batchnorm'])
+		# if config['batchnorm'] > 0.0:
+		# 	self.bn1 = nn.BatchNorm1d(hidden_layers[0], momentum=config['batchnorm'])
+		# 	self.bn2 = nn.BatchNorm1d(hidden_layers[1], momentum=config['batchnorm'])
 
 
 	def forward(self, x, task_id=None):
 		x = x.view(-1, 784)
 		out = self.W1(x)
 		out = self.relu(out)
-		if self.config['batchnorm'] > 0.0:
-			out = self.bn1(out)
+		# if self.config['batchnorm'] > 0.0:
+		# 	out = self.bn1(out)
 		out = self.dropout_1(out)
 		out = self.W2(out)
 		out = self.relu(out)
-		if self.config['batchnorm'] > 0.0:
-			out = self.bn2(out)
+		# if self.config['batchnorm'] > 0.0:
+		# 	out = self.bn2(out)
 		out = self.dropout_2(out)
 		out = self.W3(out)
 		return out
