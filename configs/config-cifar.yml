@@ -14,6 +14,6 @@ tuner:
   #SMAC (SMAC should be installed through nnictl)
   builtinTunerName: Random
 trial:
-  command: python train.py
+  command: python main.py
   codeDir: ..
   gpuNum: 1
