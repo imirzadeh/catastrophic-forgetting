@@ -30,7 +30,7 @@ EPOCHS = config['epochs']
 HIDDENS = 256
 BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-						project_name="neurips-20tasks-cifar100",
+						project_name="neurips-20tasks-rot",
 						auto_param_logging=False, auto_metric_logging=False,
 						workspace="nn-forget", disabled=False)
 
