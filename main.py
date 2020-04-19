@@ -27,6 +27,7 @@ NUM_TASKS = 20
 NUM_EIGENS = 1
 EPOCHS = config['epochs']
 # HIDDENS = config['hiddens']
+HIDDENS = 256
 BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
 						project_name="neurips-20tasks-cifar100",
@@ -138,9 +139,9 @@ def eval_single_epoch(net, loader, criterion, task_id=None):
 
 def run():
 	# basics
-	#model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
-	model = ResNet18(100, 20, config=config).to(DEVICE)
-	tasks = get_split_cifar100_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
+	model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
+	# model = ResNet18(100, 20, config=config).to(DEVICE)
+	tasks = get_rotated_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
 	# optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['momentum'])
 	# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
@@ -170,7 +171,7 @@ def run():
 					metrics = eval_single_epoch(model, val_loader, criterion, prev_task_id)
 					log_metrics(metrics, time, prev_task_id)
 					# log_hessian(model, val_loader, time, prev_task_id)
-					save_checkpoint(model, time)
+					# save_checkpoint(model, time)
 		# scheduler.step()
 	end_experiment()
 if __name__ == "__main__":

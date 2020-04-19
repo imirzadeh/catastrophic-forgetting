@@ -2,7 +2,7 @@ authorName: Iman Mirzadeh
 experimentName: NN-Forget-Rotate-Dropout-Scaled
 trialConcurrency: 1
 maxExecDuration: 24h
-maxTrialNum: 110
+maxTrialNum: 200
 
 #choice: local, remote, pai
 trainingServicePlatform: local
@@ -14,6 +14,6 @@ tuner:
   #SMAC (SMAC should be installed through nnictl)
   builtinTunerName: Random
 trial:
-  command: python train.py --hidden_size 256
+  command: python main.py
   codeDir: ..
   gpuNum: 1

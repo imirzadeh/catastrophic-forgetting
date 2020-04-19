@@ -17,12 +17,12 @@ task_states = {i: np.random.RandomState() for i in range(2, 10)}
 BATCH_SIZE = 10
 
 
-cifar_transforms = torchvision.transforms.Compose([
-		torchvision.transforms.ToTensor(),
-		torchvision.transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-		])
-cifar_train = torchvision.datasets.CIFAR100('./data/', train=True, download=True, transform=cifar_transforms)
-cifar_test = torchvision.datasets.CIFAR100('./data/', train=False, download=True, transform=cifar_transforms)
+# cifar_transforms = torchvision.transforms.Compose([
+# 		torchvision.transforms.ToTensor(),
+# 		torchvision.transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+# 		])
+# cifar_train = torchvision.datasets.CIFAR100('./data/', train=True, download=True, transform=cifar_transforms)
+# cifar_test = torchvision.datasets.CIFAR100('./data/', train=False, download=True, transform=cifar_transforms)
 	
 
 def get_permuted_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
@@ -60,11 +60,13 @@ class RotationTransform:
 
 
 def get_rotated_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
-	ROTATE_DEGREES_PER_TASK = 10
-	rotation_angle = (task_id-1)*ROTATE_DEGREES_PER_TASK
+	num_tasks = 20
+	per_task_rotation = 180.0 / num_tasks
+	rotation_degree = (task_id - 1)*per_task_rotation
+	rotation_degree -= (np.random.random()*per_task_rotation)
 
 	transforms = torchvision.transforms.Compose([
-		RotationTransform(rotation_angle),
+		RotationTransform(rotation_degree),
 		torchvision.transforms.ToTensor(),
 		])
 

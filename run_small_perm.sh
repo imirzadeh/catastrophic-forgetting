@@ -1,1 +1,0 @@
-nnictl create --config configs/config-perm-small.yml --port 9929
