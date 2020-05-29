@@ -31,7 +31,7 @@ EPOCHS = config['epochs']
 HIDDENS = 100
 BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-						project_name="neurips-hess-full-perm-5",
+						project_name="neurips-hess-full-rot-5",
 						auto_param_logging=False, auto_metric_logging=False,
 						workspace="nn-forget", disabled=False)
 
