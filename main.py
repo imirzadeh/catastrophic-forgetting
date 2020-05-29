@@ -14,27 +14,27 @@ from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks, get_sp
 
 
 config = nni.get_next_parameter()
-# config = {'epochs': 1, 'dropout': 0.05,
-# 		 'batch_size': 10, 'lr': 0.15, 'gamma': 0.9,
-# 		 'lrlb': 0.03, 'momentum': 0.7}
+# config = {'epochs': 1, 'dropout': 0.25,
+# 		 'batch_size': 64, 'lr': 0.1, 'gamma': 0.5,
+# 		 'lrlb': 0.00001, 'momentum': 0.8}
 		 
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
-DEVICE = 'cuda'			
+DEVICE = 'cuda'				
 
 # =============== SETTINGS ================
-NUM_TASKS = 20
-NUM_EIGENS = 1
+NUM_TASKS = 5
+NUM_EIGENS = 20
 EPOCHS = config['epochs']
 # HIDDENS = config['hiddens']
-HIDDENS = 256
+HIDDENS = 100
 BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-						project_name="neurips-20tasks-rot",
+						project_name="neurips-hessian-check",
 						auto_param_logging=False, auto_metric_logging=False,
 						workspace="nn-forget", disabled=False)
 
-loss_db = {t:[10 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
+loss_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
 acc_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
 hessian_eig_db = {}
 
@@ -141,7 +141,7 @@ def run():
 	# basics
 	model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
 	# model = ResNet18(100, 20, config=config).to(DEVICE)
-	tasks = get_rotated_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
+	tasks = get_permuted_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
 	# optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['momentum'])
 	# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
@@ -159,6 +159,8 @@ def run():
 		for epoch in range(1, EPOCHS+1):
 			# train and save
 			lr = max(config['lr']* config['gamma']**(current_task_id), config['lrlb'])
+			print(lr)
+
 			optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=config['momentum'])
 			train_single_epoch(model, optimizer, train_loader, criterion, current_task_id)
 			time += 1
@@ -170,8 +172,8 @@ def run():
 				if epoch == EPOCHS:
 					metrics = eval_single_epoch(model, val_loader, criterion, prev_task_id)
 					log_metrics(metrics, time, prev_task_id)
-					# log_hessian(model, val_loader, time, prev_task_id)
-					# save_checkpoint(model, time)
+					log_hessian(model, val_loader, time, prev_task_id)
+					save_checkpoint(model, time)
 		# scheduler.step()
 	end_experiment()
 if __name__ == "__main__":
