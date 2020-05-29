@@ -14,7 +14,7 @@ from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks, get_sp
 
 
 config = nni.get_next_parameter()
-# config = {'epochs': 1, 'dropout': 0.25,
+# config = {'epochs': 5, 'dropout': 0.25,
 # 		 'batch_size': 64, 'lr': 0.1, 'gamma': 0.5,
 # 		 'lrlb': 0.00001, 'momentum': 0.8}
 		 
@@ -30,7 +30,7 @@ EPOCHS = config['epochs']
 HIDDENS = 100
 BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-						project_name="neurips-hessian-check",
+						project_name="neurips-hess-full-perm-5",
 						auto_param_logging=False, auto_metric_logging=False,
 						workspace="nn-forget", disabled=False)
 
@@ -77,6 +77,9 @@ def log_metrics(metrics, time, task_id):
 	experiment.log_metric(name='task {} - loss'.format(task_id), step=time-1, value=loss)
 	experiment.log_metric(name='task {} - acc'.format(task_id), step=time-1, value=acc)
 
+def save_eigenvec(filename, arr):
+	np.save(filename, arr)
+
 def log_hessian(model, loader, time, task_id):
 	criterion = torch.nn.CrossEntropyLoss().to(DEVICE)
 	use_gpu = True if DEVICE != 'cpu' else False
@@ -90,8 +93,10 @@ def log_hessian(model, loader, time, task_id):
 		momentum=0,
 		use_gpu=True,
 	)
+	np.save()
 	key = 'task-{}-epoch-{}'.format(task_id, time-1)
 	hessian_eig_db[key] = est_eigenvals
+	save_eigenvec(EXPERIMENT_DIRECTORY+key+"vec.npy", est_eigenvecs)
 	experiment.log_histogram_3d(name='task-{}-eigs'.format(task_id), step=time-1, values=est_eigenvals)
 
 def save_checkpoint(model, time):
@@ -172,8 +177,10 @@ def run():
 				if epoch == EPOCHS:
 					metrics = eval_single_epoch(model, val_loader, criterion, prev_task_id)
 					log_metrics(metrics, time, prev_task_id)
-					log_hessian(model, val_loader, time, prev_task_id)
 					save_checkpoint(model, time)
+					if prev_task_id == current_task_id:
+						log_hessian(model, val_loader, time, prev_task_id)
+					# save_checkpoint(model, time)
 		# scheduler.step()
 	end_experiment()
 if __name__ == "__main__":
