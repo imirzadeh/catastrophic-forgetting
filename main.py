@@ -19,6 +19,7 @@ config = nni.get_next_parameter()
 # 		 'lrlb': 0.00001, 'momentum': 0.8}
 		 
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
+config['trial'] = TRIAL_ID
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
 DEVICE = 'cuda'				
 
@@ -95,7 +96,7 @@ def log_hessian(model, loader, time, task_id):
 	)
 	key = 'task-{}-epoch-{}'.format(task_id, time-1)
 	hessian_eig_db[key] = est_eigenvals
-	save_eigenvec(EXPERIMENT_DIRECTORY+"/"+key+"vec.npy", est_eigenvecs)
+	save_eigenvec(EXPERIMENT_DIRECTORY+"/{}-vec.npy".format(key), est_eigenvecs)
 	experiment.log_histogram_3d(name='task-{}-eigs'.format(task_id), step=time-1, values=est_eigenvals)
 
 def save_checkpoint(model, time):
