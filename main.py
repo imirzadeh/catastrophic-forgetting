@@ -93,7 +93,6 @@ def log_hessian(model, loader, time, task_id):
 		momentum=0,
 		use_gpu=True,
 	)
-	np.save()
 	key = 'task-{}-epoch-{}'.format(task_id, time-1)
 	hessian_eig_db[key] = est_eigenvals
 	save_eigenvec(EXPERIMENT_DIRECTORY+key+"vec.npy", est_eigenvecs)
