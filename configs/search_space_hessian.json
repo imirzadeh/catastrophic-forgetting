@@ -1,5 +1,5 @@
 { "epochs": {"_type":"choice", "_value":[5]},
-  "dropout": {"_type":"choice", "_value":[0.0, 0.25]},
+  "dropout": {"_type":"choice", "_value":[0.0, 0.25, 0.5]},
   "lr": {"_type": "choice", "_value": [0.15, 0.1, 0.01]},
   "gamma": {"_type": "choice", "_value": [1.0, 0.4]},
   "momentum": {"_type": "choice", "_value": [0.8]},
