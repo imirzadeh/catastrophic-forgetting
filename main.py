@@ -146,7 +146,7 @@ def run():
 	# basics
 	model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
 	# model = ResNet18(100, 20, config=config).to(DEVICE)
-	tasks = get_permuted_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
+	tasks = get_rotated_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
 	# optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['momentum'])
 	# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
