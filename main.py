@@ -95,7 +95,7 @@ def log_hessian(model, loader, time, task_id):
 	)
 	key = 'task-{}-epoch-{}'.format(task_id, time-1)
 	hessian_eig_db[key] = est_eigenvals
-	save_eigenvec(EXPERIMENT_DIRECTORY+key+"vec.npy", est_eigenvecs)
+	save_eigenvec(EXPERIMENT_DIRECTORY+"/"+key+"vec.npy", est_eigenvecs)
 	experiment.log_histogram_3d(name='task-{}-eigs'.format(task_id), step=time-1, values=est_eigenvals)
 
 def save_checkpoint(model, time):
