@@ -1,5 +1,6 @@
 import os
 import nni
+import uuid
 import numpy as np
 import pandas as pd
 from comet_ml import Experiment
@@ -13,19 +14,22 @@ from models import ResNet18
 from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks, get_split_cifar100_tasks
 
 
-config = nni.get_next_parameter()
-# config = {'epochs': 5, 'dropout': 0.25,
-# 		 'batch_size': 64, 'lr': 0.1, 'gamma': 0.5,
-# 		 'lrlb': 0.00001, 'momentum': 0.8}
-		 
-TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', "UNKNOWN")
+# config = nni.get_next_parameter()
+# # config = {'epochs': 5, 'dropout': 0.25,
+# # 		 'batch_size': 64, 'lr': 0.1, 'gamma': 0.5,
+# # 		 'lrlb': 0.00001, 'momentum': 0.8}
+
+
+config = {'lr': 0.01,  'gamma': 1, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.0, 'batch_size': 256, 'epochs': 5}
+
+TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', uuid.uuid4().hex.upper()[0:6])
 config['trial'] = TRIAL_ID
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
 DEVICE = 'cuda'				
 
 # =============== SETTINGS ================
 NUM_TASKS = 5
-NUM_EIGENS = 20
+# NUM_EIGENS = 2
 EPOCHS = config['epochs']
 # HIDDENS = config['hiddens']
 HIDDENS = 100
@@ -178,8 +182,8 @@ def run():
 					metrics = eval_single_epoch(model, val_loader, criterion, prev_task_id)
 					log_metrics(metrics, time, prev_task_id)
 					save_checkpoint(model, time)
-					if prev_task_id == current_task_id:
-						log_hessian(model, val_loader, time, prev_task_id)
+					# if prev_task_id == current_task_id:
+						# log_hessian(model, val_loader, time, prev_task_id)
 					# save_checkpoint(model, time)
 		# scheduler.step()
 	end_experiment()
