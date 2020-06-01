@@ -34,10 +34,13 @@ EPOCHS = config['epochs']
 # HIDDENS = config['hiddens']
 HIDDENS = 100
 BATCH_SIZE = config['batch_size']
-experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-						project_name="neurips-hess-full-rot-5",
-						auto_param_logging=False, auto_metric_logging=False,
-						workspace="nn-forget", disabled=False)
+# experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
+# 						project_name="neurips-hess-full-rot-5",
+# 						auto_param_logging=False, auto_metric_logging=False,
+# 						workspace="nn-forget", disabled=False)
+
+experiment = Experiment(api_key="Us11PRoD8QHumvupSsBIoLF45",
+                        project_name="general", workspace="randomnet")
 
 loss_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
 acc_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
