@@ -20,7 +20,7 @@ from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks, get_sp
 # # 		 'lrlb': 0.00001, 'momentum': 0.8}
 
 
-config = {'lr': 0.05,  'gamma': 1, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.0, 'batch_size': 256, 'epochs': 5}
+config = {'lr': 0.1,  'gamma': 0.25, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.5, 'batch_size': 16, 'epochs': 5}
 
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', uuid.uuid4().hex.upper()[0:6])
 config['trial'] = TRIAL_ID
