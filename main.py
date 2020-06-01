@@ -40,7 +40,7 @@ BATCH_SIZE = config['batch_size']
 # 						workspace="nn-forget", disabled=False)
 
 experiment = OfflineExperiment(api_key="Us11PRoD8QHumvupSsBIoLF45",
-                        project_name="general", workspace="randomnet")
+                        project_name="general", workspace="randomnet", offline_directory="./outputs")
 
 loss_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
 acc_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
