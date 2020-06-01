@@ -3,7 +3,7 @@ import nni
 import uuid
 import numpy as np
 import pandas as pd
-from comet_ml import Experiment
+from comet_ml import Experiment, OfflineExperiment
 import torch
 import torch.nn as nn
 from models import MLP
@@ -39,7 +39,7 @@ BATCH_SIZE = config['batch_size']
 # 						auto_param_logging=False, auto_metric_logging=False,
 # 						workspace="nn-forget", disabled=False)
 
-experiment = Experiment(api_key="Us11PRoD8QHumvupSsBIoLF45",
+experiment = OfflineExperiment(api_key="Us11PRoD8QHumvupSsBIoLF45",
                         project_name="general", workspace="randomnet")
 
 loss_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
