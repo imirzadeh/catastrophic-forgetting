@@ -20,7 +20,7 @@ def init_weights(m):
 
 
 class MLP(nn.Module):
-	def __init__(self, hidden_layers, config):
+	def __init__(self, hidden_layers, config, p=0.0):
 		super(MLP, self).__init__()
 		self.num_time_tensors = 50
 		self.config = config
@@ -30,6 +30,7 @@ class MLP(nn.Module):
 		self.W3 = nn.Linear(hidden_layers[1], hidden_layers[2])
 		self.dropout_1 = nn.Dropout(p=config['dropout'])
 		self.dropout_2 = nn.Dropout(p=config['dropout'])
+		self.dropout_p = config(['dropout'])
 		# if config['batchnorm'] > 0.0:
 		# 	self.bn1 = nn.BatchNorm1d(hidden_layers[0], momentum=config['batchnorm'])
 		# 	self.bn2 = nn.BatchNorm1d(hidden_layers[1], momentum=config['batchnorm'])
@@ -41,12 +42,14 @@ class MLP(nn.Module):
 		out = self.relu(out)
 		# if self.config['batchnorm'] > 0.0:
 		# 	out = self.bn1(out)
-		out = self.dropout_1(out)
+		# out = self.dropout_1(out)
+		out = nn.functional.dropout(out, p=self.dropout_p)
 		out = self.W2(out)
 		out = self.relu(out)
 		# if self.config['batchnorm'] > 0.0:
 		# 	out = self.bn2(out)
-		out = self.dropout_2(out)
+		# out = self.dropout_2(out)
+		out = nn.functional.dropout(out, p=self.dropout_p)
 		out = self.W3(out)
 		return out
 

@@ -3,7 +3,7 @@ import nni
 import uuid
 import numpy as np
 import pandas as pd
-from comet_ml import Experiment, OfflineExperiment
+from comet_ml import Experiment
 import torch
 import torch.nn as nn
 from models import MLP
@@ -15,32 +15,34 @@ from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks, get_sp
 
 
 # config = nni.get_next_parameter()
-# # config = {'epochs': 5, 'dropout': 0.25,
-# # 		 'batch_size': 64, 'lr': 0.1, 'gamma': 0.5,
-# # 		 'lrlb': 0.00001, 'momentum': 0.8}
+# config = {'epochs': 5, 'dropout': 0.25,
+# 		 'batch_size': 64, 'lr': 0.1, 'gamma': 0.5,
+# 		 'lrlb': 0.00001, 'momentum': 0.8}
 
+# dataset = 'perm' if np.random.randint(2) == 1 else 'rot'
+first_stable = True if np.random.randint(2) == 1 else False
+second_stable = True if np.random.randint(2) == 1 else False
 
-config = {'lr': 0.1,  'gamma': 0.25, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.5, 'batch_size': 16, 'epochs': 5}
+config_stable   = {'lr': 0.1,  'gamma': 0.2, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.25, 'batch_size': 64, 'epochs': 5}
+config_unstable = {'lr': 0.1, 'gamma': 1.0, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.0, 'batch_size': 256, 'epochs': 5}
+
 
 TRIAL_ID = os.environ.get('NNI_TRIAL_JOB_ID', uuid.uuid4().hex.upper()[0:6])
-config['trial'] = TRIAL_ID
+# config['trial'] = TRIAL_ID
 EXPERIMENT_DIRECTORY = './outputs/{}'.format(TRIAL_ID)
 DEVICE = 'cuda'				
 
 # =============== SETTINGS ================
-NUM_TASKS = 5
-# NUM_EIGENS = 2
-EPOCHS = config['epochs']
+NUM_TASKS = 2
+NUM_EIGENS = 2
+EPOCHS = config_stable['epochs']
 # HIDDENS = config['hiddens']
 HIDDENS = 100
-BATCH_SIZE = config['batch_size']
-# experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-# 						project_name="neurips-hess-full-rot-5",
-# 						auto_param_logging=False, auto_metric_logging=False,
-# 						workspace="nn-forget", disabled=False)
-
-experiment = OfflineExperiment(api_key="Us11PRoD8QHumvupSsBIoLF45",
-                        project_name="general", workspace="randomnet", offline_directory="./outputs")
+# BATCH_SIZE = config['batch_size']
+experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
+						project_name="nips-lambda2-perm-new",
+						auto_param_logging=False, auto_metric_logging=False,
+						workspace="nn-forget", disabled=False)
 
 loss_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
 acc_db = {t:[0 for i in range(NUM_TASKS*EPOCHS)] for t in range(1, NUM_TASKS+1)}
@@ -49,7 +51,8 @@ hessian_eig_db = {}
 
 def setup_experiment():
 	print('Experiment started')
-	experiment.log_parameters(config)
+	# experiment.log_parameters(config)
+	experiment.log_parameters({'first_stable': first_stable, 'second_stable': second_stable})
 	Path(EXPERIMENT_DIRECTORY).mkdir(parents=True, exist_ok=True)
 
 def end_experiment():
@@ -96,7 +99,7 @@ def log_hessian(model, loader, time, task_id):
 		loader,
 		criterion,
 		num_eigenthings=NUM_EIGENS,
-		power_iter_steps=15,
+		power_iter_steps=18,
 		power_iter_err_threshold=1e-5,
 		momentum=0,
 		use_gpu=True,
@@ -150,21 +153,38 @@ def eval_single_epoch(net, loader, criterion, task_id=None):
 	return {'accuracy': avg_acc, 'loss': test_loss}
 
 def run():
-	# basics
-	model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
-	# model = ResNet18(100, 20, config=config).to(DEVICE)
-	tasks = get_rotated_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
+	configs = []
+	if first_stable:
+		configs.append(config_stable)
+	else:
+		configs.append(config_unstable)
+
+	if second_stable:
+		configs.append(config_stable)
+	else:
+		configs.append(config_unstable)
+
+	# # basics
+	# model = MLP([HIDDENS, HIDDENS, 10], config=config).to(DEVICE)
+	# # model = ResNet18(100, 20, config=config).to(DEVICE)
+	# tasks = get_rotated_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=BATCH_SIZE)
 	
 	# optimizer = torch.optim.SGD(model.parameters(), lr=config['lr'], momentum=config['momentum'])
 	# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=config['gamma'])
 	criterion = nn.CrossEntropyLoss().to(DEVICE)
-
+	model = MLP([HIDDENS, HIDDENS, 10], config=configs[0]).to(DEVICE)
 
 	# hooks
 	setup_experiment()
 	# main loop
 	time = 0
 	for current_task_id in range(1, NUM_TASKS+1):
+		# basics
+		config = configs[current_task_id-1]
+		model.dropout_p = config['dropout']
+
+
+		tasks = get_permuted_mnist_tasks(NUM_TASKS, shuffle=True, batch_size=config['batch_size'])
 		print("========== TASK {} / {} ============".format(current_task_id, NUM_TASKS))
 		train_loader =  tasks[current_task_id]['train']
 		# task_lr = config['lr']*(config['gamma']**(current_task_id-1))
@@ -179,14 +199,14 @@ def run():
 
 			# evaluate on all tasks up to now
 			for prev_task_id in range(1, current_task_id+1):
-				model = model.to(DEVICE)
-				val_loader = tasks[prev_task_id]['test']
 				if epoch == EPOCHS:
+					model = model.to(DEVICE)
+					val_loader = tasks[prev_task_id]['test']
 					metrics = eval_single_epoch(model, val_loader, criterion, prev_task_id)
 					log_metrics(metrics, time, prev_task_id)
 					save_checkpoint(model, time)
-					# if prev_task_id == current_task_id:
-						# log_hessian(model, val_loader, time, prev_task_id)
+					if prev_task_id == current_task_id:
+						log_hessian(model, val_loader, time, prev_task_id)
 					# save_checkpoint(model, time)
 		# scheduler.step()
 	end_experiment()
