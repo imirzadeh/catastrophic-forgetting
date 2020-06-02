@@ -30,7 +30,7 @@ class MLP(nn.Module):
 		self.W3 = nn.Linear(hidden_layers[1], hidden_layers[2])
 		self.dropout_1 = nn.Dropout(p=config['dropout'])
 		self.dropout_2 = nn.Dropout(p=config['dropout'])
-		self.dropout_p = config(['dropout'])
+		self.dropout_p = config['dropout']
 		# if config['batchnorm'] > 0.0:
 		# 	self.bn1 = nn.BatchNorm1d(hidden_layers[0], momentum=config['batchnorm'])
 		# 	self.bn2 = nn.BatchNorm1d(hidden_layers[1], momentum=config['batchnorm'])
