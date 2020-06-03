@@ -38,7 +38,7 @@ def get_permuted_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
 	mnist_train = torchvision.datasets.MNIST('./data/', train=True, download=True, transform=transforms)
 	# train_subset = torch.utils.data.Subset(mnist_train, subset_indices)
 	train_loader = torch.utils.data.DataLoader(mnist_train, batch_size=batch_size, num_workers=4, pin_memory=True, shuffle=True)
-	test_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=False, download=True, transform=transforms),  batch_size=batch_size, shuffle=shuffle, num_workers=4, pin_memory=True)
+	test_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=False, download=True, transform=transforms),  batch_size=256, shuffle=shuffle, num_workers=4, pin_memory=True)
 
 	return train_loader, test_loader
 
@@ -71,7 +71,7 @@ def get_rotated_mnist(task_id, shuffle=False, batch_size=BATCH_SIZE):
 		])
 
 	train_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=True, download=True, transform=transforms), batch_size=batch_size, shuffle=shuffle, num_workers=4, pin_memory=True)
-	test_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=False, download=True, transform=transforms),  batch_size=batch_size, shuffle=shuffle, num_workers=4, pin_memory=True)
+	test_loader = torch.utils.data.DataLoader(torchvision.datasets.MNIST('./data/', train=False, download=True, transform=transforms),  batch_size=256, shuffle=shuffle, num_workers=4, pin_memory=True)
 
 	return train_loader, test_loader
 
