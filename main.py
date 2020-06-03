@@ -40,7 +40,7 @@ EPOCHS = config_stable['epochs']
 HIDDENS = 100
 # BATCH_SIZE = config['batch_size']
 experiment = Experiment(api_key="1UNrcJdirU9MEY0RC3UCU7eAg",
-						project_name="nips-lambda2-perm-new",
+						project_name="nips-lambda2-perm-3",
 						auto_param_logging=False, auto_metric_logging=False,
 						workspace="nn-forget", disabled=False)
 
