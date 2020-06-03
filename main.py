@@ -24,7 +24,7 @@ first_stable = True if np.random.randint(2) == 1 else False
 second_stable = True if np.random.randint(2) == 1 else False
 
 config_stable   = {'lr': 0.15,  'gamma': 0.3, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.25, 'batch_size': 32, 'epochs': 5}
-config_unstable = {'lr': 0.05, 'gamma': 1.0, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.0, 'batch_size': 256, 'epochs': 5}
+config_unstable = {'lr': 0.10, 'gamma': 1.0, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.0, 'batch_size': 256, 'epochs': 5}
 
 
 
@@ -36,7 +36,7 @@ DEVICE = 'cuda'
 # =============== SETTINGS ================
 NUM_TASKS = 2
 NUM_EIGENS = 1
-EPOCHS = config_stable['epochs']
+EPOCHS = config_stable['epochs']	
 # HIDDENS = config['hiddens']
 HIDDENS = 100
 # BATCH_SIZE = config['batch_size']
