@@ -23,8 +23,8 @@ from data_utils import get_permuted_mnist_tasks, get_rotated_mnist_tasks, get_sp
 first_stable = True if np.random.randint(2) == 1 else False
 second_stable = True if np.random.randint(2) == 1 else False
 
-config_stable   = {'lr': 0.15,  'gamma': 0.5, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.25, 'batch_size': 32, 'epochs': 5}
-config_unstable = {'lr': 0.1, 'gamma': 1.0, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.0, 'batch_size': 256, 'epochs': 5}
+config_stable   = {'lr': 0.15,  'gamma': 0.3, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.25, 'batch_size': 32, 'epochs': 5}
+config_unstable = {'lr': 0.05, 'gamma': 1.0, 'momentum': 0.8, 'lrlb': 0.0001, 'dropout': 0.0, 'batch_size': 256, 'epochs': 5}
 
 
 
